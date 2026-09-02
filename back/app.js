@@ -6,7 +6,9 @@ app.use(express.json())
 
 const routeTournament = require('./route/tournamentRoute')
 const routeAuth = require('./route/authRoute')
+const routeUser = require('./route/userRoute')
 app.use('/api/v1/auth', routeAuth)
+app.use('/api/v1/user', routeUser)
 app.use('/api/v1/tournament', routeTournament)
 app.get('/', (req, res)=> {
     res.send('Bienvenue sur mon api')

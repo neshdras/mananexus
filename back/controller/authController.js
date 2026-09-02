@@ -43,9 +43,9 @@ exports.register = async (req, res) => {
         return res.status(400).json({message: "Pseudo need to have at least 3 characters"})
 
     
-    const textUser = 'SELECT count(*) FROM users WHERE email_user = $1'
-
-    const isExistingUser = await db.query(textUser, [email])
+    const textUser = 'SELECT COUNT(*) FROM users WHERE email_user = $1'
+    const paramsUser = [email]
+    const isExistingUser = await db.query(textUser, paramsUser)
     
     if(isExistingUser.rows[0].count == 1)
         return res.status(400).json({message: "Email already use"})
@@ -60,7 +60,7 @@ exports.register = async (req, res) => {
 
     const hash = await bcrypt.hash(password, 15)
 
-    const insertText = 'INSERT INTO users(firstname_user, lastname_user, pseudo_user, email_user, password_user, picture_user) VALUES($1, $2, $3, $4, $5, $6) RETURNING firstname_user, lastname_user, pseudo_user, email_user, picture_user'
+    const insertText = 'INSERT INTO users(firstname_user, lastname_user, pseudo_user, email_user, password_user, picture_user) VALUES($1, $2, $3, $4, $5, $6) RETURNING firstname_user as firstname, lastname_user, pseudo_user, email_user, picture_user'
 
     const insertValue = [firstname, lastname, pseudo, email, hash, picture]
     const result = await db.query(insertText, insertValue)
