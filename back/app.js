@@ -2,11 +2,19 @@ const express = require('express')
 const app = express()
 const port = 3000
 require('dotenv').config()
+
+
+const swaggerUi = require('swagger-ui-express')
+const swaggerDocument = require('./swagger-output.json')
+
 app.use(express.json())
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 const routeTournament = require('./route/tournamentRoute')
 const routeAuth = require('./route/authRoute')
 const routeUser = require('./route/userRoute')
+
 app.use('/api/v1/auth', routeAuth)
 app.use('/api/v1/user', routeUser)
 app.use('/api/v1/tournament', routeTournament)

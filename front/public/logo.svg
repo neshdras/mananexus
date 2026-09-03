@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+
+  <defs>
+    <!-- Fond -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2A2432"></stop>
+      <stop offset="100%" stop-color="#18151F"></stop>
+    </linearGradient>
+
+    <!-- Dégradé principal -->
+    <linearGradient id="main" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E79A99"></stop>
+      <stop offset="50%" stop-color="#D27271"></stop>
+      <stop offset="100%" stop-color="#B95C5B"></stop>
+    </linearGradient>
+
+    <!-- Dégradé secondaire -->
+    <linearGradient id="light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2B8B7"></stop>
+      <stop offset="100%" stop-color="#D27271"></stop>
+    </linearGradient>
+
+    <!-- Ombre -->
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.25"></feDropShadow>
+    </filter>
+  </defs>
+
+  <!-- Fond -->
+  <rect width="512" height="512" rx="110" fill="url(#bg)"></rect>
+
+  <!-- Anneau -->
+  <circle cx="256" cy="256" r="170" fill="none" stroke="url(#light)" stroke-width="18"></circle>
+
+  <!-- Hexagone -->
+  <polygon points="256,160 343,208 343,304 256,352 169,304 169,208" fill="none" stroke="url(#main)" stroke-width="14" stroke-linejoin="round"></polygon>
+
+  <!-- Barres -->
+  <g stroke="#FDFDFD" stroke-width="12" stroke-linecap="round">
+
+      <line x1="256" y1="176" x2="256" y2="238"></line>
+      <line x1="193" y1="220" x2="240" y2="247"></line>
+      <line x1="319" y1="220" x2="272" y2="247"></line>
+      <line x1="193" y1="292" x2="240" y2="265"></line>
+      <line x1="319" y1="292" x2="272" y2="265"></line>
+      <line x1="256" y1="336" x2="256" y2="274"></line>
+
+  </g>
+
+  <!-- Centre -->
+  <circle cx="256" cy="256" r="28" fill="#FFFFFF" filter="url(#shadow)"></circle>
+
+  <!-- Noeuds -->
+  <g filter="url(#shadow)">
+      <circle cx="256" cy="168" r="18" fill="#F2B8B7"></circle>
+      <circle cx="180" cy="212" r="18" fill="#D27271"></circle>
+      <circle cx="332" cy="212" r="18" fill="#DE8A89"></circle>
+      <circle cx="180" cy="300" r="18" fill="#D96E6D"></circle>
+      <circle cx="332" cy="300" r="18" fill="#E7A3A2"></circle>
+      <circle cx="256" cy="344" r="18" fill="#C85F5E"></circle>
+  </g>
+
+</svg>
