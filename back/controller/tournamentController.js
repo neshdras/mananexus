@@ -2,7 +2,7 @@ const db = require('../config/database')
 
 exports.seeAll = async (req, res)=>{
     try {
-        const text = 'SELECT * FROM tournaments'
+        const text = 'SELECT * FROM tournaments WHERE date >= :dateNow'
         const result = await db.query(text) 
         console.log(result)
         res.json(result.rows[0])
@@ -73,5 +73,66 @@ exports.updateTournament = async (req, res) => {
 
     await db.query(updateText, updateValue) 
     res.status(200).json({message: "Tournament update succesfully"})
+}
+
+exports.addPlayer = async (req, res) => {
+    const idTournoi = req.params.id
+    const idUser = req.body.id
+
+    const date = new Date().toISOString()
+    const today = date.split("T")[0]
+
+    const textTime = 'SELECT COUNT(*) FROM tournaments WHERE date_tournament >= $1 AND id_tournament = $2'
+    const queryTime = await db.query(textTime, [today, idTournoi])
+    if(queryTime.rows[0].count != 1)
+        return res.status(404).json({message: "Tournament not found"})
+    
+    const textUser = 'SELECT COUNT(*) FROM users WHERE id_user = $1'
+    const userQuery = await db.query(textUser, [idUser])
+    if(userQuery.rows[0].count != 1)
+        return res.status(404).json({message: "User not found"})
+
+    const verifyText = 'SELECT COUNT(*) FROM tournaments_has_players WHERE fk_id_tournament = $1 AND fk_id_player = $2'
+    const verifyValue = [idTournoi, idUser]
+
+    const verifyQuery = await db.query(verifyText, verifyValue)
+    const isRegister = verifyQuery.rows[0].count == 1
+    if(isRegister)
+        return res.status(409).json({message: "User already register"})
+
+    const textInsert = 'INSERT INTO tournaments_has_players VALUES ($1, $2)'
+    const valuInsert = [idTournoi, idUser]
+    await db.query(textInsert, valuInsert)
+    res.status(200).json("Registration to tournament succesfully")
+}
+exports.delPlayer = async (req, res) => {
+    const idTournoi = req.params.id
+    const idUser = req.body.id
+
+    const date = new Date().toISOString()
+    const today = date.split("T")[0]
+
+    const textTime = 'SELECT COUNT(*) FROM tournaments WHERE date_tournament >= $1 AND id_tournament = $2'
+    const queryTime = await db.query(textTime, [today, idTournoi])
+    if(queryTime.rows[0].count != 1)
+        return res.status(404).json({message: "Tournament not found"})
+    
+    const textUser = 'SELECT COUNT(*) FROM users WHERE id_user = $1'
+    const userQuery = await db.query(textUser, [idUser])
+    if(userQuery.rows[0].count != 1)
+        return res.status(404).json({message: "User not found"})
+
+    const verifyText = 'SELECT COUNT(*) FROM tournaments_has_players WHERE fk_id_tournament = $1 AND fk_id_player = $2'
+    const verifyValue = [idTournoi, idUser]
+
+    const verifyQuery = await db.query(verifyText, verifyValue)
+    const isRegister = verifyQuery.rows[0].count == 1
+    if(!isRegister)
+        return res.status(400).json({message: "User don't register"})
+
+    const textDelete = 'DELETE FROM tournaments_has_players WHERE fk_id_tournament = $1 AND fk_id_player = $2'
+    
+    await db.query(textDelete, valuInsert)
+    res.status(200).json("Unregistration to tournament succesfully")
 }
 
