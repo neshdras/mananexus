@@ -78,3 +78,11 @@ exports.updateUser = async (req, res) => {
     await db.query(updateText, updateValue)
     res.status(200).json({message: "Profile updated !"})
 }
+
+exports.seeRanking = async (req, res) => {
+    const rankingText = 'SELECT firstname_user AS firstname, lastname_user AS lastname, pseudo_user AS pseudo, victorypts_user AS victorypts FROM users ORDER BY victorypts'
+    // const rankingText = 'SELECT * FROM users'
+    const rankingQuery = await db.query(rankingText, [])
+    const rankingList = rankingQuery.rows
+    res.json(rankingList)
+}

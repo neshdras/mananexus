@@ -136,3 +136,10 @@ exports.delPlayer = async (req, res) => {
     res.status(200).json("Unregistration to tournament succesfully")
 }
 
+exports.seePlayer = async (req, res) => {
+    const idTournoi = req.params.id
+
+    const textSelect = 'SELECT u.firstname_user AS firstname, u.lastname_user AS lastname, u.pseudo_user AS pseudo FROM users AS u INNER JOIN tournaments_has_players as tp ON u.id_user = tp.fk_id_player INNER JOIN tournaments AS t ON tp.fk_id_tournament = t.id_tournament WHERE t.id_tournament = $1'
+    const querySelect = await db.query(textSelect, [idTournoi])
+    res.json(querySelect.rows)
+}
