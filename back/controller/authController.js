@@ -93,11 +93,10 @@ exports.login = async (req, res) =>{
 
     const query = await db.query(queryText, [identifiant])
     const isExistingUser = query.rows[0].count == 1
-    
     if(!isExistingUser) 
         return res.status(400).json({message: "Please provide the information"})
 
-    const isMatching = await bcrypt.compare(password, query.rowCount[0].password_user)
+    const isMatching = await bcrypt.compare(password, query.rows[0].password_user)
     if(!isMatching)
         return res.status(400).json({message: "Please provide the information"})
 

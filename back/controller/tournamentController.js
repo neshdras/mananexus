@@ -4,7 +4,7 @@ exports.seeAll = async (req, res)=>{
     try {
         const text = 'SELECT * FROM tournaments WHERE date >= :dateNow'
         const result = await db.query(text) 
-        console.log(result)
+        
         res.json(result.rows[0])
     } catch (err) {
         res.status(500).json({message: err.message})

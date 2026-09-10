@@ -2,8 +2,12 @@ const db = require('../config/database')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 
+exports.getProfile = async (req, res) => {
+    const user = req.user
+    res.json({user})
+}
 exports.updateUser = async (req, res) => {
-    const id = req.params.id
+    const user = req.user
     
     const firstname = req.body.firstname
     const lastname = req.body.lastname
@@ -15,7 +19,10 @@ exports.updateUser = async (req, res) => {
 
     const userText = 'SELECT firstname_user , lastname_user, pseudo_user, email_user, password_user, picture_user FROM users WHERE id_user = $1' 
     const queryUser = await db.query(userText, [id])
-    const user = queryUser.rows[0]
+    const isUser = queryUser.rows[0].count == 1
+    
+    if(!isUser)
+        return res.status(400).json({message: "User not found"})
     
     if(firstname != null)
         user.firstname_user = firstname

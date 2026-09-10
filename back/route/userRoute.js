@@ -1,7 +1,9 @@
 const express = require('express')
-const { updateUser, seeRanking } = require('../controller/userController')
+const { updateUser, seeRanking, getProfile } = require('../controller/userController')
+const {authMiddleware} = require('../middleware/authMiddleware')
 const router = express.Router()
 
-router.patch('/update/:id', updateUser)
-router.get('/ranking', seeRanking )
+router.get('/profile', authMiddleware, getProfile)
+router.patch('/update', authMiddleware, updateUser)
+router.get('/ranking', authMiddleware, seeRanking )
 module.exports = router
