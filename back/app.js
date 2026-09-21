@@ -4,6 +4,7 @@ const port = 3000
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
+const cookieParser = require('cookie-parser')
 require('dotenv').config()
 
 
@@ -25,11 +26,11 @@ app.use(limiter)
 app.use(express.json())
 
 const corsOption = {
-    origin: 'http://localhost:3000'
+    origin: 'http://localhost:5173'
 }
 app.use(cors(corsOption))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-
+app.use(cookieParser())
 const routeTournament = require('./route/tournamentRoute')
 const routeAuth = require('./route/authRoute')
 const routeUser = require('./route/userRoute')
