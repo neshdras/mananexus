@@ -5,13 +5,13 @@ const jwt = require('jsonwebtoken')
 const { findUserByEmail, findUserByPseudo, createUser, resetToken, verifyToken, udpatePassword } = require('../model/userModel')
 
 const JWT_SECRET = process.env.JWT_SECRET
-const JWT_EXPIRE_IN = '24h'
 
-const generateToken = (id, expire) => {
-    return jwt.sign({id}, JWT_SECRET, {
-        expiresIn: expire
-    } )
-}
+
+    const generateToken = (id, expire) => {
+        return jwt.sign({id}, JWT_SECRET, {
+            expiresIn: expire
+        } )
+    }
 
 exports.register = async (req, res) => {
     const { firstname, lastname, email, password} = req.body
@@ -56,8 +56,9 @@ exports.register = async (req, res) => {
     const insertValue = [firstname, lastname, pseudo, email, hash, picture]
 
     const user = await createUser(insertValue)
-    const token = generateToken(user.id_user, JWT_EXPIRE_IN)
-    res.cookie("token", token,{
+    const tokenRefresh = generateToken(user.id_user, '7d')
+    const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
+    res.cookie("token", tokenRefresh,{
         httpOnly: true,
         secure: true,
         sameSite: "lax",
@@ -65,6 +66,7 @@ exports.register = async (req, res) => {
     })
     res.status(201).json({
         message: "User create successfully",
+        token: tokenAccess,
         user
     })
 }
@@ -75,7 +77,6 @@ exports.login = async (req, res) =>{
         return res.status(400).json({message: "Please provide the information"})
 
     let user
-    // min char 4*5
     const minLength = validator.isByteLength(identifiant, 3)
     if(!minLength)
         return res.status(400).json({message: "Please provide the information"})
@@ -97,16 +98,25 @@ exports.login = async (req, res) =>{
         return res.status(400).json({message: "Please provide the information"})
 
     
-    const token = generateToken(user.id_user, JWT_EXPIRE_IN)
-    res.cookie("token", token, {
-        httpOnly: true,
+    const tokenRefresh = generateToken(user.id_user, '7d')
+    const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
 
+    res.cookie("tokenRefresh", tokenRefresh, {
+        httpOnly: true,
+        secure: false,
+        sameSite:'lax',
+        maxAge: 7*24*60*60*1000
+    })
+    res.cookie("tokenAccess", tokenAccess, {
+        httpOnly: true,
+        secure: false,
+        sameSite:'lax',
+        maxAge: 15*60*1000
     })
     res.status(200).json({
         message: "Login successfully",
-        
         user:{
-            id_user: 1,
+            id_user: user.id_user,
             firstname_user: user.firstname_user,
             lastname_user: user.lastname_user,
             pseudo_user: user.pseudo_user,
@@ -166,4 +176,25 @@ exports.forgetPass = async (req, res) => {
         return res.status(500).json({message: err.message})
     }   
 
+}
+
+exports.refreshAuth = async (req, res) =>{
+    const tokenRefresh = req.cookies.tokenRefresh
+    if(!tokenRefresh)
+        return res.status(404).json({message: "Token not found, please reconnect. "})
+    try {
+        const decoded = jwt.verify(tokenRefresh, JWT_SECRET)
+        const tokenAccess = generateToken(decoded.id, 900)
+        res.cookie("TokenAcess", tokenAccess,{
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 15*60*1000
+        })
+        res.status(200).json({
+            message: "Access token refreshed"
+        })
+    } catch (err) {
+        res.status(400).json({message: err.message})
+    }
 }

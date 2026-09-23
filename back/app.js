@@ -26,7 +26,8 @@ app.use(limiter)
 app.use(express.json())
 
 const corsOption = {
-    origin: 'http://localhost:5173'
+    origin: 'http://localhost:5173',
+    credentials: true 
 }
 app.use(cors(corsOption))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))

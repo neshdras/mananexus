@@ -2,10 +2,15 @@ const User = require('../model/userModel')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 
-// exports.getProfile = async (req, res) => {
-//     const user = req.user
-//     res.status(200).json({user})
-// }
+exports.getProfile = async (req, res) => {
+    const id = req.params.id
+    if(!id){
+        // Faire appel au model qui renvoie info user et faire un return 
+        return res.status(200).json({user: req.user})
+    }
+    const user = User.findUserById(id)
+    return res.status(200).json({user})
+}
 exports.updateUser = async (req, res) => {
     const user = req.user
     
