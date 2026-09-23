@@ -1,3 +1,3 @@
 # Lien vers les readmes respectif :
-- [Readme front]
-- [Readme back]
+- [Readme front](./front/README.md)
+- [Readme back](./back/README.md)
