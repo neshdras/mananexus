@@ -58,15 +58,20 @@ exports.register = async (req, res) => {
     const user = await createUser(insertValue)
     const tokenRefresh = generateToken(user.id_user, '7d')
     const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
-    res.cookie("token", tokenRefresh,{
+    res.cookie("tokenRefresh", tokenRefresh,{
         httpOnly: true,
-        secure: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 7*24*60*60*1000
+    })
+    res.cookie("tokenAcess", tokenAccess,{
+        httpOnly: true,
+        secure: false,
         sameSite: "lax",
         maxAge: 7*24*60*60*1000
     })
     res.status(201).json({
         message: "User create successfully",
-        token: tokenAccess,
         user
     })
 }

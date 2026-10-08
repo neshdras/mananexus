@@ -74,5 +74,5 @@ exports.updateUser = async (req, res) => {
 
 exports.seeRanking = async (req, res) => {
     const rankingList = await User.rankingQuery()
-    res.json(rankingList)
+    res.status(200).json(rankingList)
 }

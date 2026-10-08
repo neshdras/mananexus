@@ -101,7 +101,7 @@ exports.addPlayer = async (req, res) => {
 }
 exports.delPlayer = async (req, res) => {
     const idTournoi = req.params.id
-    const idUser = req.body.id
+    const idUser = req.user.id
 
     const date = new Date().toISOString()
     const today = date.split("T")[0]
