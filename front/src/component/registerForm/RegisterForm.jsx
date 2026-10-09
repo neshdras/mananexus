@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import useController from '../../hook/useCOntroller'
+import useController  from '../../hook/useController'
 import { apiService } from "../../services/apiService"
+
 
 function FormRegister() {
   const query = apiService.auth.register
-  const {data, loading, errorMessage, loadFetch} = useController()
+  const { loading, errorMessage, loadFetch} = useController()
   const [dataForm, setDataForm] = useState({firstname:"", lastname:"", email:"", password:""})
   const [info, setInfo] = useState(null)
   const regexPassword = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$/
   const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 
   async function handleSubmit(e){
     e.preventDefault()
@@ -22,16 +24,20 @@ function FormRegister() {
     if(!regexMail.test(dataForm.email)) 
       return setInfo('Veuillez renseigner une adresse mail valide.')
     
-    await loadFetch(query, dataForm)
+    const res = await loadFetch(query, dataForm)
+    
+    if(res?.token){
+      setInfo(res)
+    }
   }
   
   return(
     <>
     <p className='load'>{loading? "Loading..." : ""}</p>
     <p className='err'>{errorMessage? "Erreur lors du chargement, veuillez réessayer plus tard" : ""}</p>
-    <p>{!loading && data ? data.message : ""}</p>
-    <p className="info">{info}</p>
+    <p>{loading === true ? "Loading..." : ""}</p>
     <form onSubmit={handleSubmit}>
+      <p className="info">{info}</p>
       <label htmlFor="firstname">firstname: </label>
       <input type="text" name="firstname" id="firstname"  disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
       <label htmlFor="lastname">Lastname: </label>
