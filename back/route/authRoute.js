@@ -1,6 +1,9 @@
 const express = require('express')  
 const { register, login, sendToken, forgetPass, refreshAuth } = require('../controller/authController')
 const router = express.Router()
+const validate = require('../middleware/validateMiddleware')
+const { loginSchema, sendTokenSchema, resetPasswordSchema } = require('../schemas/authSchema')
+const {registerSchema} = require('../schemas/userSchema')
 
 /**
  * @swagger
@@ -44,7 +47,7 @@ const router = express.Router()
  *              500:
  *                  description: Erreur serveur
  */
-router.post('/register', register)
+router.post('/register', validate(registerSchema), register)
 
 /**
  * @swagger
@@ -86,9 +89,9 @@ router.post('/register', register)
  *                  description: Erreur serveur
  */
 
-router.post('/login', login)
-router.post('/send', sendToken)
-router.post('/reset/:token', forgetPass)
+router.post('/login', validate(loginSchema), login)
+router.post('/send', validate(sendTokenSchema), sendToken)
+router.post('/reset/:token', validate(resetPasswordSchema) ,forgetPass)
 router.post('/refresh', refreshAuth)
 
 module.exports = router

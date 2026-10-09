@@ -23,11 +23,11 @@ exports.updateUser = async (req, res) => {
     const picture = req.body.picture || null
 
 
-    if(firstname != null)
+    if(firstname !== undefined)
         user.firstname_user = firstname
-    if(lastname != null)
+    if(lastname !== undefined)
         user.lastname_user = lastname
-    if(email != null){
+    if(email !== undefined){
         const validateEmail = validator.isEmail(email)
         if(!validateEmail)
             return res.status(400).json({message: 'Please provide a valid email'})
@@ -38,7 +38,7 @@ exports.updateUser = async (req, res) => {
 
         user.email_user = email
     }
-    if(password != null){
+    if(password !== undefined){
         const validatePassword = validator.isStrongPassword(password, {
             minLength: 6,
             minLowercase: 1,
@@ -52,7 +52,7 @@ exports.updateUser = async (req, res) => {
         const hash = await bcrypt.hash(password, 15)
         user.password_user = hash
     }
-    if(pseudo != null){
+    if(pseudo !== undefined){
         const minLengthPseudo = validator.isByteLength(pseudo, 3)
         if(!minLengthPseudo)
             return res.status(400).json({message: "Pseudo need at least 3 characters"})
@@ -64,7 +64,7 @@ exports.updateUser = async (req, res) => {
         user.pseudo_user = pseudo
 
     }
-    if(picture != null)
+    if(picture !== undefined)
         user.picture_user = picture
 
 

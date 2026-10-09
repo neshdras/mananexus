@@ -16,8 +16,6 @@ exports.createTournament = async (req, res) => {
     try {
         const { name, format, date, price, paf, location} = req.body
         const organizer = req.user.id_user
-        if(!name || !format || !date || !organizer || !price || !paf || !location)
-            return res.status(400).json({message: 'Please provide the information ask for'})
 
         const existingTournament = await duplicateTournament(format, date, organizer, location)
         if(existingTournament)
@@ -38,26 +36,25 @@ exports.updateTournament = async (req, res) => {
     const id = req.params.id
     const { name, format, date, price, paf, location} = req.body
 
-    
     const tournament = await getTournamentById(id)
 
     if(tournament == null)
         return res.status(404).json({message: "Tournament not found"})
 
-    if(name != null)
+    if(name !== undefined)
         tournament.name_tournament = name
-    if(format != null)
+    if(format !== undefined)
         tournament.format_tournament = format
-    if(date != null)
+    if(date !== undefined)
         tournament.date_tournament = date
 
-    if(price != null)
+    if(price !== undefined)
         tournament.price_tournament = price
-    if(paf != null)
+    if(paf !== undefined)
         tournament.ctc_tournament = paf
-    if(location != null)
+    if(location !== undefined)
         tournament.location_tournament = location   
-    if(desc != null)
+    if(desc !== undefined)
         tournament.description_tournament = desc
 
 

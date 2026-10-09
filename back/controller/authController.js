@@ -18,30 +18,6 @@ exports.register = async (req, res) => {
     const pseudo = req.body.pseudo || null
     const picture = req.body.picture || null
 
-    
-    if(!firstname|| !lastname || !email || !password)
-        return res.status(400).json({message: "Please provide the information ask"})
-
-    const isPasswordOk = validator.isStrongPassword(password, {
-        minLength: 6,
-        minLowercase: 1,
-        minUppercase: 1,
-        minNumbers:1,
-        minSymbols:1
-    })
-
-    if(!isPasswordOk)
-        return res.status(400).json({message: "The password need to have 1 lower, 1 upper, 1 number and 1 symbol and 6 character long min"})
-
-    const isEmailValid = validator.isEmail(email)
-
-    if(!isEmailValid)
-        return res.status(400).json({message: "Please provide a valid email"})
-
-    const minLength = pseudo == null ? true : validator.isByteLength(pseudo, 3)
-
-    if(!minLength)
-        return res.status(400).json({message: "Pseudo need to have at least 3 characters"})
 
     const isExistingUser = await findUserByEmail(email)
     if(isExistingUser)
@@ -78,31 +54,18 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) =>{
     const {identifiant, password} = req.body
-    if(!identifiant || !password)
-        return res.status(400).json({message: "Please provide the information"})
-
-    let user
-    const minLength = validator.isByteLength(identifiant, 3)
-    if(!minLength)
-        return res.status(400).json({message: "Please provide the information"})
 
     const isEmail = validator.isEmail(identifiant)
 
-    if (!isEmail) {
-        user = await findUserByPseudo(identifiant)
-    }
-    if(isEmail){
-        user = await findUserByEmail(identifiant)
-    }
-
+    const user = isEmail ? await findUserByEmail(identifiant) : await findUserByPseudo(identifiant)
+    
     if(!user)
-        return res.status(404).json({message: "Please provide the information"})
+        return res.status(401).json({message: "Identifiants incorrects"})
 
     const isMatching = await bcrypt.compare(password, user.password_user)
     if(!isMatching)
-        return res.status(400).json({message: "Please provide the information"})
+        return res.status(401).json({message: "Identifiants incorrects"})
 
-    
     const tokenRefresh = generateToken(user.id_user, '7d')
     const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
 
