@@ -1,4 +1,4 @@
-export function legalNotice() {
+export function LegalNotice() {
     return(
         <>
             <h1>Mention Légales</h1>

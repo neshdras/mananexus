@@ -1,0 +1,91 @@
+@use '../../styles/base/variable' as *;
+#registerForm{
+    max-width: 352px;
+    margin: auto;
+    padding: 24px 14px;
+    font-family: Arial, sans-serif;
+    color: $white;
+    h2{
+        margin: 0 0 10px;
+        font-family: Georgia, serif;
+        font-size: 28px;
+        font-weight: 400;
+        span{
+            color: $primary-color;
+            font-style: italic;
+        }
+    }
+    >p{
+        margin: 0 0 32px;
+        font-size: 12px;
+        line-height: 18px;
+        color: $gray;
+    }
+    p:empty{
+        display: none;
+    }
+    form{
+        display: grid;
+        gap: 8px;
+    }
+    label{
+        font-size: 10px;
+        color: $ligth-gray;
+    }
+    input:not([type="checkbox"]){
+        box-sizing: border-box;
+        width: 100%;
+        min-width: 0;
+        height: 38px;
+        margin-bottom: 8px;
+        padding: 0 14px;
+        border: 1px solid rgba($gray, 0.1);
+        border-radius: 12px;
+        background-color: $black;
+        color: $white;
+        font-family: inherit;
+        font-size: 12px;
+        &::placeholder{
+            color: $gray;
+        }
+        &:focus{
+            outline: 1px solid $primary-color;
+        }
+    }
+    label[for="rgpd"]{
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 4px 0 8px;
+        font-size: 9px;
+        line-height: 14px;
+        color: $gray;
+        input{
+            margin: 0;
+            accent-color: $primary-color;
+        }
+    }
+    button{
+        padding: 12px 16px;
+        border: none;
+        border-radius: 10px;
+        background-color: $primary-color;
+        color: $black;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        &:focus-visible{
+            outline: 2px solid $white;
+            outline-offset: 3px;
+        }
+        &:disabled{
+            opacity: 0.6;
+            cursor: wait;
+        }
+    }
+    .info, .err{
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: $primary-color;
+    }
+}

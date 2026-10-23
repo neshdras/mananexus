@@ -1,6 +1,7 @@
 import useController from "../../hook/useController"
 import { useState } from "react"
 import { apiService } from "../../services/apiService"
+import './loginForm.scss'
 function Login() {
     const regexPassword = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$/
     const query = apiService.auth.login
@@ -19,18 +20,18 @@ function Login() {
     }
 
   return (
-    <div>
+    <div id="loginForm">
     <form onSubmit={handleSubmit}>
           <p className='load'>{loading? "Loading..." : ""}</p>
     <p className='err'>{errorMessage? "Erreur lors du chargement, veuillez réessayer plus tard" : ""}</p>
-        <p>{message}</p>
+        <p className="info">{message}</p>
         <label htmlFor="identifiant">Identifiant: </label>
-        <input type="text" name="identifiant" id="identifiant"  onChange={(e) => setInfo(prev => ({...prev, identifiant: e.target.value}))}/>
-        <label htmlFor="pass">Password</label>
-        <input type="text" name="pass" id="pass" onChange={(e) => setInfo(prev => ({...prev, password: e.target.value}))}/>
-        <button type="submit">Connexion</button>
+        <input type="text" name="identifiant" id="identifiant" placeholder="you@example.com" autoComplete="username" onChange={(e) => setInfo(prev => ({...prev, identifiant: e.target.value}))}/>
+        <label htmlFor="pass">Password </label>
+        <input type="password" name="pass" id="pass" placeholder="••••••••" autoComplete="current-password" onChange={(e) => setInfo(prev => ({...prev, password: e.target.value}))}/>
+        <button type="submit" disabled={loading}>{loading ? "Loading..." : "Connexion"}</button>
     </form>
-    
+
     </div>
   )
 }

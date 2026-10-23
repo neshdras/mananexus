@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import useController  from '../../hook/useController'
 import { apiService } from "../../services/apiService"
+import './registerForm.scss'
 
 
 function FormRegister() {
@@ -8,6 +9,7 @@ function FormRegister() {
   const { loading, errorMessage, loadFetch} = useController()
   const [dataForm, setDataForm] = useState({firstname:"", lastname:"", email:"", password:""})
   const [info, setInfo] = useState(null)
+  const [isAgree, setIsAgree] = useState(false)
   const regexPassword = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$/
   const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,25 +34,27 @@ function FormRegister() {
   }
   
   return(
-    <>
+    <section id="registerForm">
+
     <p className='load'>{loading? "Loading..." : ""}</p>
     <p className='err'>{errorMessage? "Erreur lors du chargement, veuillez réessayer plus tard" : ""}</p>
     <p>{loading === true ? "Loading..." : ""}</p>
     <form onSubmit={handleSubmit}>
       <p className="info">{info}</p>
-      <label htmlFor="firstname">firstname: </label>
-      <input type="text" name="firstname" id="firstname"  disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
-      <label htmlFor="lastname">Lastname: </label>
-      <input type="text" name="lastname" id="lastname"  disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, lastname: e.target.value}))}/>
-      <label htmlFor="email">email: </label>
-      <input type="text" name="email" id="email"  disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, email: e.target.value}))}/>
-      <label htmlFor="pseudo">pseudo: </label>
-      <input type="text" name="pseudo" id="pseudo"  disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
+      <label htmlFor="firstname">Prénom: </label>
+      <input type="text" name="firstname" id="firstname" placeholder="Votre prénom" autoComplete='firstname' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
+      <label htmlFor="lastname">Nom de famille: </label>
+      <input type="text" name="lastname" id="lastname" placeholder="Votre nom"  autoComplete='lastname' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, lastname: e.target.value}))}/>
+      <label htmlFor="email">Email: </label>
+      <input type="email" name="email" id="email" placeholder="prenom.nom@exemple.fr" autoComplete='email' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, email: e.target.value}))}/>
+      <label htmlFor="pseudo">Pseudo: (optionnel)</label>
+      <input type="text" name="pseudo" id="pseudo" placeholder="Votre pseudo" autoComplete='username' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
       <label htmlFor="pass">Password</label>
-      <input type="text" name="pass" id="pass" disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+      <input type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+      <label htmlFor="rgpd"><input type="checkbox" name="rgpd" id="rgpd" onChange={()=>setIsAgree(!isAgree)} /> En cochant cette case, je suis d'accord de partager les informations donnée ci-dessus avec Nexus Shuffle</label>
       <button type="submit" disabled={loading}>{loading ? "Loading..." : "Inscription"}</button>
     </form>
-    </>
+    </section>
   )
 }
 
