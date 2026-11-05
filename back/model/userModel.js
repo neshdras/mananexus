@@ -4,7 +4,7 @@ exports.createUser = async (user) => {
     
     const { rows } = await db.query(
         'INSERT INTO users(firstname_user, lastname_user, pseudo_user, email_user, password_user, picture_user) VALUES($1, $2, $3, $4, $5, $6) RETURNING id_user, firstname_user, lastname_user, pseudo_user, email_user, picture_user',
-        [user]
+        user
     )
 
     return rows[0];
@@ -44,7 +44,7 @@ exports.updateUser = async (user) =>{
         user.email_user,
         user.password_user,
         user.picture_user,
-        id
+        user.id_user
     ]
     await db.query(updateText, updateValue)
 }
@@ -55,10 +55,10 @@ exports.rankingQuery = async () => {
     return rows 
 }
 
-exports.resetToken = async(token) => {
+exports.resetToken = async(token, id) => {
     await db.query(
         'UPDATE users SET token_password_forget = $1 WHERE id_user = $2',
-        [token]
+        [token, id]
     ) 
 }
 

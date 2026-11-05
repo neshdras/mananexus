@@ -5,10 +5,19 @@ exports.seeAll = async (req, res)=>{
     try {
         const date = new Date().toISOString()
         const today = date.split("T")[0]
-        const result = getAll(today)
-        res.json(result.rows[0])
+        const result = await getAll(today)
+        res.status(200).json({
+            title: 'Tournaments retrieved',
+            status: 200,
+            detail: 'The tournaments were retrieved successfully',
+            tournaments: result
+        })
     } catch (err) {
-        res.status(500).json({message: err.message})
+        res.status(500).json({
+            title: 'Server error',
+            status: 500,
+            detail: err.message
+        })
     }
 }
 
@@ -19,16 +28,26 @@ exports.createTournament = async (req, res) => {
 
         const existingTournament = await duplicateTournament(format, date, organizer, location)
         if(existingTournament)
-            return res.status(400).json({message: 'Tournament already exist'})
+            return res.status(400).json({
+                title: 'Bad request',
+                status: 400,
+                detail: 'Tournament already exist'
+            })
 
-        const insertValue = [name, format, date, organizer, price, paf, location, desc]
+        const insertValue = [name, format, date, organizer, price, paf, location, null]
         const tournamentInfo = await insertTournament(insertValue)
         res.status(201).json({
-            message: "Tournament creted successfully",
+            title: 'Created',
+            status: 201,
+            detail: "Tournament creted successfully",
             tournamentInfo
         })
     } catch (err) {
-        res.status(500).json({message: err.message})
+        res.status(500).json({
+            title: 'Server error',
+            status: 500,
+            detail: err.message
+        })
     }
 }
 
@@ -39,7 +58,11 @@ exports.updateTournament = async (req, res) => {
     const tournament = await getTournamentById(id)
 
     if(tournament == null)
-        return res.status(404).json({message: "Tournament not found"})
+        return res.status(404).json({
+            title: 'Not found',
+            status: 404,
+            detail: "Tournament not found"
+        })
 
     if(name !== undefined)
         tournament.name_tournament = name
@@ -54,8 +77,7 @@ exports.updateTournament = async (req, res) => {
         tournament.ctc_tournament = paf
     if(location !== undefined)
         tournament.location_tournament = location   
-    if(desc !== undefined)
-        tournament.description_tournament = desc
+
 
 
     const updateValue = [
@@ -70,58 +92,99 @@ exports.updateTournament = async (req, res) => {
     ]
 
     await updateTournament(updateValue)
-    res.status(200).json({message: "Tournament update succesfully"})
+    res.status(200).json({
+        title: 'Success',
+        status: 200,
+        detail: "Tournament update succesfully"
+    })
 }
 
 exports.addPlayer = async (req, res) => {
     const idTournament = req.params.id
-    const idUser = req.user.id
+    const idUser = req.user.id_user
 
     const date = new Date().toISOString()
     const today = date.split("T")[0]
 
     const queryTime = await getTournamentByIdAndDate(idTournament, today)
     if(!queryTime)
-        return res.status(404).json({message: "Tournament not found"})
+        return res.status(404).json({
+            title: 'Not found',
+            status: 404,
+            detail: "Tournament not found"
+        })
     
 
     const userQuery = await findUserById(idUser)
     if(!userQuery)
-        return res.status(404).json({message: "User not found"})
+        return res.status(404).json({
+            title: 'Not found',
+            status: 404,
+            detail: "User not found"
+        })
 
     const isRegister = await verifyRegister(idTournament, idUser) == 1
     if(isRegister)
-        return res.status(409).json({message: "User already register"})
+        return res.status(409).json({
+            title: 'Conflict',
+            status: 409,
+            detail: "User already register"
+        })
 
     await addPlayerToTournament(idTournament, idUser)
-    res.status(200).json("Registration to tournament succesfully")
+    res.status(200).json({
+        title: 'Registration completed',
+        status: 200,
+        detail: 'Registration to tournament succesfully'
+    })
 }
 exports.delPlayer = async (req, res) => {
     const idTournoi = req.params.id
-    const idUser = req.user.id
+    const idUser = req.user.id_user
 
     const date = new Date().toISOString()
     const today = date.split("T")[0]
 
     const queryTime = await getTournamentByIdAndDate(idTournoi, today)
-    if(queryTime)
-        return res.status(404).json({message: "Tournament not found"})
+    if(!queryTime)
+        return res.status(404).json({
+            title: 'Not found',
+            status: 404,
+            detail: "Tournament not found"
+        })
     
     const userQuery = await findUserById(idUser)
-    if(userQuery)
-        return res.status(404).json({message: "User not found"})
+    if(!userQuery)
+        return res.status(404).json({
+            title: 'Not found',
+            status: 404,
+            detail: "User not found"
+        })
 
     const verifyQuery = await verifyRegister(idTournoi, idUser)
     const isRegister = verifyQuery == 1
     if(!isRegister)
-        return res.status(400).json({message: "User don't register"})
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: "User don't register"
+        })
 
     await deleteRegister(idTournoi, idUser)
-    res.status(200).json("Unregistration to tournament succesfully")
+    res.status(200).json({
+        title: 'Registration cancelled',
+        status: 200,
+        detail: 'Unregistration to tournament succesfully'
+    })
 }
 
 exports.seePlayer = async (req, res) => {
     const idTournoi = req.params.id
     const playerList = await seePlayerRegister(idTournoi)
-    res.json(playerList)
+    res.status(200).json({
+        title: 'Players retrieved',
+        status: 200,
+        detail: 'The registered players were retrieved successfully',
+        players: playerList
+    })
 }

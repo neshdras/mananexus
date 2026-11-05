@@ -2,7 +2,7 @@ const db = require('../config/database')
 
 exports.getAll = async (date) => {
     const {rows} = await db.query(
-        'SELECT * FROM tournaments WHERE date >= $1',
+        'SELECT * FROM tournaments WHERE date_tournament >= $1',
         [date]
     )
     return rows
@@ -25,7 +25,7 @@ exports.getTournamentByIdAndDate = async (id, date) => {
 
 exports.duplicateTournament = async(format, date, organiser, location) => {
     const {rows} = await db.query(
-        'SELECT * FROM tournaments WHERE format_tournament = $1 AND date_tournament = $2 AND organiser_tournament = $3 AND location_tournament = $4',
+        'SELECT * FROM tournaments WHERE format_tournament = $1 AND date_tournament = $2 AND fk_id_user = $3 AND location_tournament = $4',
         [format, date, organiser, location ]
     )
     return rows[0] || null
@@ -34,7 +34,7 @@ exports.duplicateTournament = async(format, date, organiser, location) => {
 exports.insertTournament = async(value) => {
     const { rows } = await db.query(
         'INSERT INTO tournaments(name_tournament, format_tournament, date_tournament, fk_id_user, price_tournament, ctc_tournament, location_tournament, description_tournament) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING name_tournament AS name, format_tournament AS format, date_tournament, price_tournament AS price, ctc_tournament AS ctc, location_tournament AS location, description_tournament AS description',
-        [value]
+        value
     )
     return rows[0]
 }

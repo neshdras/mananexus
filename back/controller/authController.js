@@ -3,7 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { findUserByEmail, findUserByPseudo, createUser, resetToken, verifyToken, udpatePassword } = require('../model/userModel')
-
+const mailSender = require('../tools/mailSender')
 const JWT_SECRET = process.env.JWT_SECRET
 
 
@@ -21,11 +21,19 @@ exports.register = async (req, res) => {
 
     const isExistingUser = await findUserByEmail(email)
     if(isExistingUser)
-        return res.status(400).json({message: "Email already use"})
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: "Email already use"
+        })
     
     const isExistingPseudo = await findUserByPseudo(pseudo)
     if(isExistingPseudo)
-        return res.status(400).json({message: "Pseudo already use"})
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: "Pseudo already use"
+        })
     
     const hash = await bcrypt.hash(password, 15)
 
@@ -40,14 +48,16 @@ exports.register = async (req, res) => {
         sameSite: "lax",
         maxAge: 7*24*60*60*1000
     })
-    res.cookie("tokenAcess", tokenAccess,{
+    res.cookie("tokenAccess", tokenAccess,{
         httpOnly: true,
         secure: false,
         sameSite: "lax",
         maxAge: 7*24*60*60*1000
     })
     res.status(201).json({
-        message: "User create successfully",
+        title: 'Created',
+        status: 201,
+        detail: "User create successfully",
         user
     })
 }
@@ -60,11 +70,19 @@ exports.login = async (req, res) =>{
     const user = isEmail ? await findUserByEmail(identifiant) : await findUserByPseudo(identifiant)
     
     if(!user)
-        return res.status(401).json({message: "Identifiants incorrects"})
+        return res.status(401).json({
+            title: 'Unauthorized',
+            status: 401,
+            detail: "Identifiants incorrects"
+        })
 
     const isMatching = await bcrypt.compare(password, user.password_user)
     if(!isMatching)
-        return res.status(401).json({message: "Identifiants incorrects"})
+        return res.status(401).json({
+            title: 'Unauthorized',
+            status: 401,
+            detail: "Identifiants incorrects"
+        })
 
     const tokenRefresh = generateToken(user.id_user, '7d')
     const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
@@ -82,7 +100,9 @@ exports.login = async (req, res) =>{
         maxAge: 15*60*1000
     })
     res.status(200).json({
-        message: "Login successfully",
+        title: 'Success',
+        status: 200,
+        detail: "Login successfully",
         user:{
             id_user: user.id_user,
             firstname_user: user.firstname_user,
@@ -98,16 +118,29 @@ exports.sendToken = async (req, res) => {
     const {email}= req.body
     const isValid = validator.isEmail(email)
     if(!isValid)
-        return res.status(400).json({message: "Please provide a good email"})
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: "Please provide a good email"
+        })
 
     const user = await findUserByEmail(email)
     if(!user)
-        return res.status(400).json({message: "Please provide the information ask."})
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: "Please provide the information ask."
+        })
     
     const id = user.id_user
     const token = generateToken(id, '15min')
-    await resetToken(token)
-    res.json({token})
+    await resetToken(token, id)
+    await mailSender(token, email)
+    res.status(200).json({
+        title: 'Mail send',
+        status: 200,
+        detail: "The mail to reset password was send successfully"
+    })
 }
 
 exports.forgetPass = async (req, res) => {
@@ -125,44 +158,74 @@ exports.forgetPass = async (req, res) => {
             minSymbols:1
         })
         if(!isPasswordOk)
-            return res.status(400).json({message: "The password need to have 1 lower, 1 upper, 1 number and 1 symbol and 6 character long min"})
+            return res.status(400).json({
+                title: 'Bad request',
+                status: 400,
+                detail: "The password need to have 1 lower, 1 upper, 1 number and 1 symbol and 6 character long min"
+            })
         
         const isStock = await verifyToken(token, decoded.id) == 1
         
         if(!isStock)
-            return res.status(400).json({message: 'Wrong information'})
+            return res.status(400).json({
+                title: 'Bad request',
+                status: 400,
+                detail: 'Wrong information'
+            })
         
         const hash = await bcrypt.hash(password, 15)
 
         await udpatePassword(hash, decoded.id)
-        res.json({message: "Password has been modified"})
+        res.status(200).json({
+            title: 'Success',
+            status: 200,
+            detail: "Password has been modified"
+        })
         
     } catch (err) {
         if(err.message === "jwt expired"){
-            return res.status(400).json({message: err.message})
+            return res.status(400).json({
+                title: 'Bad request',
+                status: 400,
+                detail: err.message
+            })
         }
-        return res.status(500).json({message: err.message})
+        return res.status(500).json({
+            title: 'Server error',
+            status: 500,
+            detail: err.message
+        })
     }   
 
 }
 
 exports.refreshAuth = async (req, res) =>{
-    const tokenRefresh = req.cookies.tokenRefresh
+    const tokenRefresh = req.cookies?.tokenRefresh
     if(!tokenRefresh)
-        return res.status(404).json({message: "Token not found, please reconnect. "})
+        return res.status(404).json({
+            title: 'Not found',
+            status: 404,
+            detail: "Token not found, please reconnect. "
+        })
     try {
         const decoded = jwt.verify(tokenRefresh, JWT_SECRET)
         const tokenAccess = generateToken(decoded.id, 900)
-        res.cookie("TokenAcess", tokenAccess,{
+        res.cookie("tokenAccess", tokenAccess,{
             httpOnly: true,
             secure: false,
             sameSite: "lax",
             maxAge: 15*60*1000
         })
         res.status(200).json({
-            message: "Access token refreshed"
+            title: 'Success',
+            status: 200,
+            detail: "Access token refreshed"
         })
     } catch (err) {
-        res.status(400).json({message: err.message})
+        res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: err.message
+        })
     }
 }

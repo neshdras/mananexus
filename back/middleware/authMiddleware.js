@@ -4,9 +4,7 @@ const JWT_SECRET = process.env.JWT_SECRET
 
 exports.authMiddleware = async (req, res, next) => {
     try {
-        let token
-        if(req.cookies.token)
-            token = req.cookies.token
+        const token = req.cookies?.tokenAccess
 
         if(!token)
             return res.status(401).json({message: "Not authorized, token missing"})

@@ -35,10 +35,32 @@ app.use(cookieParser())
 const routeTournament = require('./route/tournamentRoute')
 const routeAuth = require('./route/authRoute')
 const routeUser = require('./route/userRoute')
+const routeDeck = require('./route/deckRoute')
 
 app.use('/api/v1/auth', routeAuth)
 app.use('/api/v1/user', routeUser)
 app.use('/api/v1/tournament', routeTournament)
+app.use('/api/v1/deck', routeDeck)
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     summary: Afficher le message d’accueil de l’API
+ *     tags:
+ *       - Accueil
+ *     responses:
+ *       '200':
+ *         description: Message d’accueil.
+ *         content:
+ *           text/html:
+ *             schema:
+ *               type: string
+ *               example: Bienvenue sur mon api
+ *       '429':
+ *         description: Trop de requêtes (limite globale de 100 requêtes par 15 minutes).
+ *       '500':
+ *         description: Erreur serveur.
+ */
 app.get('/', (req, res)=> {
     res.send('Bienvenue sur mon api')
 })

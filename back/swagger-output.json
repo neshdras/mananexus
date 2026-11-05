@@ -1,260 +1,2502 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.3",
   "info": {
-    "title": "API for Mananexus",
+    "title": "API for Nexus Shuffle",
     "version": "1.0.0",
     "description": "Documentation API"
   },
-  "host": "localhost:3000",
-  "basePath": "/",
-  "schemes": [
-    "http"
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
   ],
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "token",
+        "description": "JWT lu par authMiddleware dans le cookie token. Les contrôleurs utilisent actuellement des noms différents (tokenAccess, tokenAcess et TokenAcess)."
+      },
+      "refreshCookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "tokenRefresh",
+        "description": "JWT de renouvellement fourni à la connexion ou à l’inscription."
+      }
+    }
+  },
   "paths": {
-    "/": {
+    "/api/v1/user/profile/{id}": {
       "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/v1/auth/register": {
-      "post": {
-        "description": "",
-        "parameters": [
+        "summary": "Consulter un profil utilisateur",
+        "tags": [
+          "Utilisateurs"
+        ],
+        "security": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pseudo": {
-                  "example": "any"
-                },
-                "picture": {
-                  "example": "any"
-                },
-                "firstname": {
-                  "example": "any"
-                },
-                "lastname": {
-                  "example": "any"
-                },
-                "email": {
-                  "example": "any"
-                },
-                "password": {
-                  "example": "any"
-                }
-              }
-            }
+            "cookieAuth": []
           }
         ],
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "identifiant": {
-                  "example": "any"
-                },
-                "password": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/v1/auth/send": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/api/v1/auth/reset/{token}": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "token",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "password": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/v1/user/update/{id}": {
-      "patch": {
-        "description": "",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
+            "description": "Identifiant de l’utilisateur à consulter.",
             "schema": {
-              "type": "object",
-              "properties": {
-                "firstname": {
-                  "example": "any"
-                },
-                "lastname": {
-                  "example": "any"
-                },
-                "email": {
-                  "example": "any"
-                },
-                "password": {
-                  "example": "any"
-                },
-                "pseudo": {
-                  "example": "any"
-                },
-                "picture": {
-                  "example": "any"
-                }
-              }
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Réponse contenant la propriété user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/user/update": {
+      "patch": {
+        "summary": "Modifier le profil de l’utilisateur connecté",
+        "tags": [
+          "Utilisateurs"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "firstname": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 50,
+                    "example": "Clark"
+                  },
+                  "lastname": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 50,
+                    "example": "Kent"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "clark@example.com"
+                  },
+                  "pseudo": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 50,
+                    "example": "Superman"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "description": "Au moins 6 caractères dont une minuscule, une majuscule, un chiffre et un symbole.",
+                    "example": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profil modifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Email ou pseudo déjà utilisé, ou données refusées par le contrôleur.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/user/ranking": {
+      "get": {
+        "summary": "Consulter le classement des utilisateurs",
+        "tags": [
+          "Utilisateurs"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Classement par points de victoire croissants.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "ranking": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "firstname": {
+                            "type": "string"
+                          },
+                          "lastname": {
+                            "type": "string"
+                          },
+                          "pseudo": {
+                            "type": "string"
+                          },
+                          "victorypts": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
           }
         }
       }
     },
     "/api/v1/tournament/seeAll": {
       "get": {
-        "description": "",
+        "summary": "Consulter les tournois à venir",
+        "tags": [
+          "Tournois"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "Résultat de la consultation des tournois.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "tournaments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Erreur serveur.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/api/v1/tournament/create": {
       "post": {
-        "description": "",
-        "parameters": [
+        "summary": "Créer un tournoi",
+        "tags": [
+          "Tournois"
+        ],
+        "security": [
           {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "any"
-                },
-                "format": {
-                  "example": "any"
-                },
-                "date": {
-                  "example": "any"
-                },
-                "organizer": {
-                  "example": "any"
+            "cookieAuth": []
+          }
+        ],
+        "description": "L’organisateur est déduit de l’utilisateur connecté.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "format",
+                  "date",
+                  "price",
+                  "paf",
+                  "location"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Tournoi du samedi"
+                  },
+                  "format": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Commander"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date ISO 8601 dans le futur, avec fuseau horaire.",
+                    "example": "2030-11-15T14:00:00+01:00"
+                  },
+                  "price": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Deux boosters"
+                  },
+                  "paf": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true,
+                    "example": 5
+                  },
+                  "location": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Paris"
+                  }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Tournoi créé, réponse contenant message et tournamentInfo.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        201
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "tournamentInfo": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Un tournoi existe déjà pour ce format, cette date, cet organisateur et ce lieu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
           },
           "500": {
-            "description": "Internal Server Error"
+            "description": "Erreur serveur.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tournament/update/{id}": {
+      "patch": {
+        "summary": "Modifier un tournoi",
+        "tags": [
+          "Tournois"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du tournoi à modifier.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Tournoi du samedi"
+                  },
+                  "format": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Commander"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date ISO 8601 dans le futur, avec fuseau horaire.",
+                    "example": "2030-11-15T14:00:00+01:00"
+                  },
+                  "price": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Deux boosters"
+                  },
+                  "paf": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMinimum": true,
+                    "example": 5
+                  },
+                  "location": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Paris"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tournoi modifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tournoi introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/tournament/join/{id}": {
+      "post": {
+        "summary": "Inscrire l’utilisateur connecté à un tournoi",
+        "tags": [
+          "Tournois"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du tournoi.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inscription effectuée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tournoi indisponible pour la date du jour ou utilisateur introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Utilisateur déjà inscrit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        409
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/tournament/unjoin/{id}": {
+      "delete": {
+        "summary": "Désinscrire l’utilisateur connecté d’un tournoi",
+        "tags": [
+          "Tournois"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du tournoi.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Désinscription effectuée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Utilisateur non inscrit.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Le contrôleur signale un tournoi ou un utilisateur introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/tournament/{id}/players": {
+      "get": {
+        "summary": "Lister les joueurs inscrits à un tournoi",
+        "tags": [
+          "Tournois"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du tournoi.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des joueurs inscrits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "players": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "firstname": {
+                            "type": "string"
+                          },
+                          "lastname": {
+                            "type": "string"
+                          },
+                          "pseudo": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/deck/adddeck/{gameId}": {
+      "post": {
+        "summary": "Ajouter une decklist pour un jeu",
+        "tags": [
+          "Decklists"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "description": "La decklist est associée à l’utilisateur connecté.",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du jeu.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 3
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "format",
+                  "url"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Mon deck Commander"
+                  },
+                  "format": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Commander"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Lien HTTP(S) provenant de moxfield.com, piltoverarchive.com ou riftdecks.com.",
+                    "example": "https://moxfield.com/decks/example"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Decklist créée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "deck"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Created"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        201
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "deck": {
+                      "type": "object",
+                      "properties": {
+                        "id_decklist": {
+                          "type": "integer"
+                        },
+                        "fk_id_user": {
+                          "type": "integer"
+                        },
+                        "fk_id_game": {
+                          "type": "integer"
+                        },
+                        "name_decklist": {
+                          "type": "string"
+                        },
+                        "format_decklist": {
+                          "type": "string"
+                        },
+                        "url_decklist": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant du jeu invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur lors de la création de la decklist.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deck/game/{gameId}": {
+      "get": {
+        "summary": "Consulter les decklists de l’utilisateur connecté pour un jeu",
+        "tags": [
+          "Decklists"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du jeu.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des decklists de l’utilisateur connecté pour ce jeu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "decks"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "decks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id_decklist": {
+                            "type": "integer"
+                          },
+                          "fk_id_user": {
+                            "type": "integer"
+                          },
+                          "fk_id_game": {
+                            "type": "integer"
+                          },
+                          "name_decklist": {
+                            "type": "string"
+                          },
+                          "format_decklist": {
+                            "type": "string"
+                          },
+                          "url_decklist": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant du jeu invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur lors de la consultation des decklists."
+          }
+        }
+      }
+    },
+    "/api/v1/deck/delete/{id}": {
+      "delete": {
+        "summary": "Supprimer une decklist de l’utilisateur connecté",
+        "tags": [
+          "Decklists"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "description": "Seule une decklist appartenant à l’utilisateur connecté peut être supprimée.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la decklist à supprimer.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 7
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decklist supprimée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "deck"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Deleted"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "deck": {
+                      "type": "object",
+                      "properties": {
+                        "id_decklist": {
+                          "type": "integer"
+                        },
+                        "fk_id_user": {
+                          "type": "integer"
+                        },
+                        "fk_id_game": {
+                          "type": "integer"
+                        },
+                        "name_decklist": {
+                          "type": "string"
+                        },
+                        "format_decklist": {
+                          "type": "string"
+                        },
+                        "url_decklist": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant de la decklist invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Decklist introuvable ou n’appartenant pas à l’utilisateur connecté.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur lors de la suppression de la decklist."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "Créer un utilisateur",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "firstname",
+                  "lastname",
+                  "email",
+                  "pseudo",
+                  "password"
+                ],
+                "properties": {
+                  "firstname": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 50,
+                    "example": "Clark"
+                  },
+                  "lastname": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 50,
+                    "example": "Kent"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "clark@example.com"
+                  },
+                  "pseudo": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 50,
+                    "example": "Superman"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "description": "Au moins une majuscule, un chiffre et un caractère spécial.",
+                    "example": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé. Définit les cookies tokenRefresh et tokenAcess (orthographe actuelle du contrôleur).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        201
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email ou pseudo déjà utilisé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Se connecter avec un email ou un pseudo",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "identifiant",
+                  "password"
+                ],
+                "properties": {
+                  "identifiant": {
+                    "type": "string",
+                    "minLength": 3,
+                    "description": "Email valide ou pseudo composé de lettres, chiffres, tirets et underscores.",
+                    "example": "Superman"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "description": "Au moins une majuscule, un chiffre et un caractère spécial.",
+                    "example": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie. Définit les cookies HttpOnly tokenAccess (15 minutes) et tokenRefresh (7 jours).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id_user": {
+                          "type": "integer"
+                        },
+                        "firstname_user": {
+                          "type": "string"
+                        },
+                        "lastname_user": {
+                          "type": "string"
+                        },
+                        "pseudo_user": {
+                          "type": "string"
+                        },
+                        "email_user": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "picture_user": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Identifiants incorrects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/send": {
+      "post": {
+        "summary": "Obtenir un jeton de réinitialisation du mot de passe",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "clark@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email de réinitialisation envoyé avec succès.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email invalide ou utilisateur introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset/{token}": {
+      "post": {
+        "summary": "Réinitialiser le mot de passe",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Jeton reçu via /api/v1/auth/send.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "description": "Au moins 6 caractères dont une minuscule, une majuscule, un chiffre et un symbole.",
+                    "example": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mot de passe modifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Mot de passe trop faible, jeton expiré ou non enregistré.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "summary": "Renouveler le jeton d’accès",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "refreshCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jeton renouvelé pour 15 minutes via le cookie tokenAccess.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Jeton de renouvellement invalide ou expiré.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cookie tokenRefresh absent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Afficher le message d’accueil de l’API",
+        "tags": [
+          "Accueil"
+        ],
+        "responses": {
+          "200": {
+            "description": "Message d’accueil.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "example": "Bienvenue sur mon api"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
           }
         }
       }
     }
-  }
+  },
+  "tags": []
 }
