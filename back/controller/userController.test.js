@@ -52,6 +52,15 @@ describe('User Controller', () => {
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledWith({ title: 'Success', status: 200, detail: 'Profile updated !' })
         })
+        it('should update the picture when one is supplied', async () => {
+            req.body = { picture: 'new-avatar.png' }
+            db.query.mockResolvedValueOnce({ rows: [] })
+
+            await updateUser(req, res)
+
+            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('UPDATE users'), ['Clark', 'Kent', 'Superman', 'test@mail.com', 'old-hash', 'new-avatar.png', 1])
+            expect(res.status).toHaveBeenCalledWith(200)
+        })
         it('should update email, pseudo and hash the new password', async () => {
             req.body = { email: 'bruce@mail.com', pseudo: 'Batman', password: 'NewPass123!' }
             db.query.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] })

@@ -73,19 +73,91 @@ describe('Tournament Controller', () => {
         })
         it('should update all supplied fields', async () => {
             req.body = { name: 'Nouveau nom', format: 'Standard', date: '2030-12-01T10:00:00Z', price: 'Trois boosters', paf: 10, location: 'Lyon' }
-            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [] })
+            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] })
             await updateTournament(req, res)
             expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('id_tournament = $1'), ['7'])
-            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE tournaments'), ['Nouveau nom', 'Standard', req.body.date, 'Trois boosters', 10, 'Lyon', 'Description conservée', '7'])
+            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('fk_id_user = $3'), ['Standard', req.body.date, 1, 'Lyon'])
+            expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('UPDATE tournaments'), ['Nouveau nom', 'Standard', req.body.date, 'Trois boosters', 10, 'Lyon', 'Description conservée', '7'])
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledWith({ title: 'Success', status: 200, detail: 'Tournament update succesfully' })
         })
-        it('should preserve omitted fields on partial update', async () => {
-            req.body = { name: 'Nouveau nom' }
+        it.each([
+            ['name', { name: 'Nouveau nom' }, ['Nouveau nom', 'Commander', '2030-11-15T14:00:00Z', 'Deux boosters', 5, 'Paris', 'Description conservée', '7'], false],
+            ['format', { format: 'Standard' }, ['Ancien nom', 'Standard', '2030-11-15T14:00:00Z', 'Deux boosters', 5, 'Paris', 'Description conservée', '7'], true],
+            ['date', { date: '2030-12-01T10:00:00Z' }, ['Ancien nom', 'Commander', '2030-12-01T10:00:00Z', 'Deux boosters', 5, 'Paris', 'Description conservée', '7'], true],
+            ['price', { price: 'Trois boosters' }, ['Ancien nom', 'Commander', '2030-11-15T14:00:00Z', 'Trois boosters', 5, 'Paris', 'Description conservée', '7'], false],
+            ['paf', { paf: 10 }, ['Ancien nom', 'Commander', '2030-11-15T14:00:00Z', 'Deux boosters', 10, 'Paris', 'Description conservée', '7'], false],
+            ['location', { location: 'Lyon' }, ['Ancien nom', 'Commander', '2030-11-15T14:00:00Z', 'Deux boosters', 5, 'Lyon', 'Description conservée', '7'], true]
+        ])('should update only %s and preserve the other fields', async (field, body, updateValues, checksDuplicates) => {
+            req.body = body
+            db.query.mockResolvedValueOnce({ rows: [tournament] })
+            if(checksDuplicates)
+                db.query.mockResolvedValueOnce({ rows: [] })
+            db.query.mockResolvedValueOnce({ rows: [] })
+
+            await updateTournament(req, res)
+
+            expect(db.query).toHaveBeenCalledTimes(checksDuplicates ? 3 : 2)
+            if(checksDuplicates){
+                const expectedFormat = body.format ?? tournament.format_tournament
+                const expectedDate = body.date ?? tournament.date_tournament
+                const expectedLocation = body.location ?? tournament.location_tournament
+                expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('fk_id_user = $3'), [expectedFormat, expectedDate, 1, expectedLocation])
+            }
+            expect(db.query).toHaveBeenNthCalledWith(checksDuplicates ? 3 : 2, expect.stringContaining('UPDATE tournaments'), updateValues)
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Success', status: 200, detail: 'Tournament update succesfully' })
+        })
+
+        it('should preserve every field when the request body is empty', async () => {
+            req.body = {}
             db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [] })
             await updateTournament(req, res)
-            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE tournaments'), ['Nouveau nom', 'Commander', '2030-11-15T14:00:00Z', 'Deux boosters', 5, 'Paris', 'Description conservée', '7'])
+            expect(db.query).toHaveBeenCalledTimes(2)
+            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('UPDATE tournaments'), ['Ancien nom', 'Commander', '2030-11-15T14:00:00Z', 'Deux boosters', 5, 'Paris', 'Description conservée', '7'])
             expect(res.status).toHaveBeenCalledWith(200)
+        })
+
+        it.each([
+            ['format', { format: 'Standard' }],
+            ['date', { date: '2030-12-01T10:00:00Z' }],
+            ['location', { location: 'Lyon' }]
+        ])('should reject a duplicate when %s changes', async (field, body) => {
+            req.body = body
+            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [{ ...tournament, id_tournament: 8 }] })
+
+            await updateTournament(req, res)
+
+            expect(db.query).toHaveBeenCalledTimes(2)
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Bad request', status: 400, detail: 'Tournament already exist' })
+        })
+
+        it('should allow the current tournament returned by the duplicate lookup', async () => {
+            req.body = { format: 'Commander' }
+            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [] })
+
+            await updateTournament(req, res)
+
+            expect(db.query).toHaveBeenCalledTimes(3)
+            expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('UPDATE tournaments'), ['Ancien nom', 'Commander', '2030-11-15T14:00:00Z', 'Deux boosters', 5, 'Paris', 'Description conservée', '7'])
+            expect(res.status).toHaveBeenCalledWith(200)
+        })
+
+        it('should propagate a duplicate lookup failure', async () => {
+            req.body = { format: 'Standard' }
+            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockRejectedValueOnce(new Error('Duplicate lookup failed'))
+
+            await expect(updateTournament(req, res)).rejects.toThrow('Duplicate lookup failed')
+            expect(res.json).not.toHaveBeenCalled()
+        })
+
+        it('should propagate an update failure', async () => {
+            req.body = { name: 'Nouveau nom' }
+            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockRejectedValueOnce(new Error('Update failed'))
+
+            await expect(updateTournament(req, res)).rejects.toThrow('Update failed')
+            expect(res.json).not.toHaveBeenCalled()
         })
     })
 

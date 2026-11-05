@@ -64,19 +64,38 @@ exports.updateTournament = async (req, res) => {
             detail: "Tournament not found"
         })
 
-    if(name !== undefined)
+    const uniquenessFieldsChanged = format !== undefined || date !== undefined || location !== undefined
+    if(uniquenessFieldsChanged){
+        const nextFormat = format !== undefined ? format : tournament.format_tournament
+        const nextDate = date !== undefined ? date : tournament.date_tournament
+        const nextLocation = location !== undefined ? location : tournament.location_tournament
+        const existingTournament = await duplicateTournament(nextFormat, nextDate, req.user.id_user, nextLocation)
+        if(existingTournament && existingTournament.id_tournament !== tournament.id_tournament)
+            return res.status(400).json({
+                title: 'Bad request',
+                status: 400,
+                detail: 'Tournament already exist'
+            })
+    }
+
+    if(name !== undefined){
         tournament.name_tournament = name
-    if(format !== undefined)
+    }
+    if(format !== undefined){
         tournament.format_tournament = format
-    if(date !== undefined)
+    }
+
+    if(date !== undefined){
         tournament.date_tournament = date
+    }
 
     if(price !== undefined)
         tournament.price_tournament = price
     if(paf !== undefined)
         tournament.ctc_tournament = paf
-    if(location !== undefined)
+    if(location !== undefined){
         tournament.location_tournament = location   
+    }
 
 
 

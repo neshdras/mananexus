@@ -46,6 +46,19 @@ describe('Auth Controller', () => {
             expect(res.status).toHaveBeenCalledWith(201)
             expect(res.json).toHaveBeenCalledWith({ title: 'Created', status: 201, detail: 'User create successfully', user })
         })
+        it('should register a user with a null pseudo', async () => {
+            req.body.pseudo = null
+            const userWithoutPseudo = { ...user, pseudo_user: null }
+            db.query.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [userWithoutPseudo] })
+            jwt.sign.mockReturnValueOnce('refresh-token').mockReturnValueOnce('access-token')
+
+            await register(req, res)
+
+            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('pseudo_user = $1'), [null])
+            expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('INSERT INTO users'), ['Clark', 'Kent', null, 'test@mail.com', 'hashed-password', null])
+            expect(res.status).toHaveBeenCalledWith(201)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Created', status: 201, detail: 'User create successfully', user: userWithoutPseudo })
+        })
         it('should return 400 if email is already used', async () => {
             db.query.mockResolvedValueOnce({ rows: [user] })
             await register(req, res)

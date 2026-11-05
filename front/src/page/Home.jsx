@@ -1,7 +1,12 @@
-import { Form } from "./Form"
+import { Form} from './Form'
 import '../styles/page/Home.scss'
+import { Footer } from "../component/footer/Footer"
 export function Home(){
     return(
+        <>
+        <header>
+            <img src="logo.svg" alt="logo shuffle nexus" />
+        </header>
         <main id="home">
             <section>
                 <h1>Bienvenue sur <span>Nexus Shuffle</span></h1>
@@ -31,5 +36,7 @@ export function Home(){
                 <aside><Form/></aside>
             </section>
         </main>
+        <Footer/>
+        </>
     )
 }
