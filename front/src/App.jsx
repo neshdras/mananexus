@@ -15,11 +15,15 @@ function App() {
   const { error, checkSession } = useAuth()
   const location = useLocation()
   const pathArray = ['/ranking', '/profile', '/tournament']
-  useEffect(() => { checkSession() }, [checkSession])
+  const requiresSession = pathArray.includes(location.pathname) || location.pathname.startsWith('/profile/')
+
+  useEffect(() => {
+    if (requiresSession) checkSession()
+  }, [checkSession, requiresSession])
 
   return (
     <>
-      {(pathArray.includes(location.pathname) || location.pathname.startsWith('/profile/')) && error && (
+      {requiresSession && error && (
         <div role="alert"><p>{error}</p><button onClick={checkSession}>Réessayer</button></div>
       )}
       <Routes>
