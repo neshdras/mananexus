@@ -1,11 +1,7 @@
-// const browserUrl = window.location.href
-// const isLocalHost = browserUrl.includes('localhost') 
 
-// const BASE_URL = isLocalHost
-//     ? 'http://localhost:3000/api/v1/'
-//     :  ''
 
-const BASE_URL = 'http://localhost:3000/api/v1'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1'
+
 const apiRequest = async (url, options = {}, retry = false)=>{
     const req = await fetch(`${BASE_URL}${url}`, {
         ...options,

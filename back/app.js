@@ -26,7 +26,7 @@ app.use(limiter)
 app.use(express.json())
 
 const corsOption = {
-    origin: 'http://localhost:5173',
+    origin: 'https://shufflenexus.vercel.app',
     credentials: true 
 }
 app.use(cors(corsOption))

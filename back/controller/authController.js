@@ -50,8 +50,8 @@ exports.register = async (req, res) => {
     })
     res.cookie("tokenAccess", tokenAccess,{
         httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        secure: true,
+        sameSite: "none",
         maxAge: 7*24*60*60*1000
     })
     res.status(201).json({
@@ -89,14 +89,14 @@ exports.login = async (req, res) =>{
 
     res.cookie("tokenRefresh", tokenRefresh, {
         httpOnly: true,
-        secure: false,
-        sameSite:'lax',
+        secure: true,
+        sameSite:'none',
         maxAge: 7*24*60*60*1000
     })
     res.cookie("tokenAccess", tokenAccess, {
         httpOnly: true,
-        secure: false,
-        sameSite:'lax',
+        secure: true,
+        sameSite:'none',
         maxAge: 15*60*1000
     })
     res.status(200).json({
@@ -212,8 +212,8 @@ exports.refreshAuth = async (req, res) =>{
         const tokenAccess = generateToken(decoded.id, 900)
         res.cookie("tokenAccess", tokenAccess,{
             httpOnly: true,
-            secure: false,
-            sameSite: "lax",
+            secure: true,
+            sameSite: "none",
             maxAge: 15*60*1000
         })
         res.status(200).json({
