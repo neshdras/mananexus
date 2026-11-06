@@ -57,12 +57,13 @@ export const apiService = {
         },
         async register(info, signal){
             const {firstname, lastname, email, password, pseudo} = info
-                const req = await fetch(`/auth/register`, {
+                const req = await fetch(`${BASE_URL}/auth/register`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({firstname, lastname, email, password, pseudo}),
+                    credentials: 'include',
                     signal
             })
             if(!req.ok)
@@ -73,12 +74,13 @@ export const apiService = {
         },
         async sendTokenBd(info, signal){
             const {email} = info
-                const req = await fetch(`/auth/send`, {
+                const req = await fetch(`${BASE_URL}/auth/send`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({email}),
+                    credentials: 'include',
                     signal
             })
     
@@ -89,12 +91,13 @@ export const apiService = {
         },
         async resetPass(info, signal){
             const {password, token} = info
-                const req = await fetch(`/auth/reset/${token}`, {
+                const req = await fetch(`${BASE_URL}/auth/reset/${token}`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({password}),
+                    credentials: 'include',
                     signal
             })
     
