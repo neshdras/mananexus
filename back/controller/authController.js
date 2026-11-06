@@ -229,3 +229,14 @@ exports.refreshAuth = async (req, res) =>{
         })
     }
 }
+
+exports.logout = (req, res) => {
+    res.clearCookie('tokenAccess', { path: '/' })
+    res.clearCookie('tokenRefresh', { path: '/' })
+
+    return res.status(200).json({
+        title: 'Success',
+        status: 200,
+        detail: 'Logout successfully'
+    })
+}

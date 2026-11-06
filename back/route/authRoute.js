@@ -1,5 +1,5 @@
 const express = require('express')  
-const { register, login, sendToken, forgetPass, refreshAuth } = require('../controller/authController')
+const { register, login, sendToken, forgetPass, refreshAuth, logout } = require('../controller/authController')
 const router = express.Router()
 const validate = require('../middleware/validateMiddleware')
 const { loginSchema, sendTokenSchema, resetPasswordSchema } = require('../schemas/authSchema')
@@ -515,5 +515,6 @@ router.post('/reset/:token', validate(resetPasswordSchema) ,forgetPass)
  *         description: Erreur serveur.
  */
 router.post('/refresh', refreshAuth)
+router.post('/logout', logout)
 
 module.exports = router

@@ -21,6 +21,16 @@ const apiRequest = async (url, options = {}, retry = false)=>{
 }
 export const apiService = {
     auth: {
+        async logout() {
+            const req = await fetch(`${BASE_URL}/auth/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            })
+
+            if (!req.ok) {
+                throw new Error(`Error HTTP: ${req.status}`)
+            }
+        },
         async session() {
             const req = await apiRequest('/auth/me')
             if (req.status === 401) return null
