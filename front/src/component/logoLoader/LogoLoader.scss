@@ -1,0 +1,85 @@
+.logo-loader {
+    // Chaque élément apparaît en 2 s, puis s'efface en 2 s.
+    --duration: 4s;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: linear-gradient(135deg, #2A2432 0%, #18151F 100%);
+
+    svg {
+        display: block;
+        width: min(60vw, 320px);
+        max-width: 100%;
+        height: auto;
+    }
+
+    &__ring,
+    &__hexagon {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        opacity: 0;
+        animation: logo-loader-draw var(--duration) ease-in-out infinite backwards;
+    }
+
+    &__hexagon { animation-delay: 0.35s; }
+    &__ring { animation-delay: 0.65s; }
+
+    &__center,
+    &__nodes circle {
+        transform-box: fill-box;
+        transform-origin: center;
+        animation: logo-loader-appear var(--duration) ease-in-out infinite backwards;
+    }
+
+    &__branches line {
+        // Les branches mesurent environ 54 à 62 unités SVG.
+        stroke-dasharray: 64;
+        stroke-dashoffset: 64;
+        opacity: 0;
+        animation: logo-loader-branch var(--duration) ease-in-out infinite backwards;
+    }
+
+    // Un léger décalage fait apparaître les six branches et leurs nœuds.
+    @for $i from 1 through 6 {
+        &__branches line:nth-child(#{$i}) {
+            animation-delay: #{0.08 * $i}s;
+        }
+
+        &__nodes circle:nth-child(#{$i}) {
+            animation-delay: #{0.16 + 0.08 * $i}s;
+        }
+    }
+}
+
+@keyframes logo-loader-draw {
+    0%, 100% { stroke-dashoffset: 1; opacity: 0; }
+    50% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes logo-loader-branch {
+    0%, 100% { stroke-dashoffset: 64; opacity: 0; }
+    50% { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes logo-loader-appear {
+    0%, 100% { transform: scale(0.15); opacity: 0; }
+    50% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-loader {
+        &__ring,
+        &__hexagon,
+        &__center,
+        &__branches line,
+        &__nodes circle {
+            animation: none;
+            stroke-dashoffset: 0;
+            transform: none;
+            opacity: 1;
+        }
+    }
+}

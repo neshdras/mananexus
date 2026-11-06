@@ -3,7 +3,9 @@ import { useEffect, useState } from "react"
 import { TournamentCard } from "../component/tournamentCard/TournamentCard"
 import useController from "../hook/useController"
 import '../styles/page/Tournament.scss'
-
+import {NavBar} from '../component/navBar/NavBar'
+import {Footer} from '../component/footer/Footer'
+import ModalTournament from '../component/modal/ModalTournament'
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -24,6 +26,7 @@ export function Tournament(){
     const { loading, errorMessage, loadFetch } = useController()
     const [tournaments, setTournaments] = useState(null)
     const [attempt, setAttempt] = useState(0)
+    const [isCreateModalOpen, setCreateModalOpen] = useState(false)
 
     useEffect(() => {
         let active = true
@@ -43,8 +46,15 @@ export function Tournament(){
     }
 
     return(
+        <>
+        <NavBar/>
         <main className="tournament-page">
-            <h1>Tournois disponibles</h1>
+            <div className="tournament-page__heading">
+                <h1>Tournois disponibles</h1>
+                <button type="button" onClick={() => setCreateModalOpen(true)}>
+                    <span aria-hidden="true">+</span> Ajouter un tournoi
+                </button>
+            </div>
             {loading && <p role="status">Chargement des tournois…</p>}
             {errorMessage && (
                 <div>
@@ -72,5 +82,13 @@ export function Tournament(){
                 ))}
             </div>
         </main>
+        {isCreateModalOpen && (
+            <ModalTournament
+                onClose={() => setCreateModalOpen(false)}
+                onTournamentCreated={() => setAttempt((value) => value + 1)}
+            />
+        )}
+        <Footer/>
+        </>
     )
 }

@@ -1,0 +1,157 @@
+@use '../../styles/base/variable' as var;
+
+.profile-decks {
+    padding: 28px 32px;
+    border: 1px solid rgba(248, 248, 249, 0.12);
+    border-radius: 24px;
+    background: rgba(248, 248, 249, 0.035);
+
+    &__heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+
+        h2 {
+            margin: 0;
+            font-family: var.$sec-font;
+            font-size: 28px;
+        }
+    }
+
+    &__eyebrow {
+        margin: 0 0 5px;
+        color: var.$primary-color;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    &__count {
+        display: grid;
+        min-width: 38px;
+        height: 38px;
+        padding: 0 8px;
+        place-items: center;
+        border-radius: 20px;
+        background: var.$opacolor-15;
+        color: var.$primary-color;
+        font-weight: 700;
+    }
+
+    &__empty {
+        margin: 0;
+        padding: 24px;
+        border: 1px dashed rgba(248, 248, 249, 0.2);
+        border-radius: 14px;
+        color: var.$ligth-gray;
+        text-align: center;
+    }
+
+    &__add-card {
+        display: flex;
+        width: 100%;
+        min-height: 72px;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 0 22px;
+        padding: 18px 24px;
+        border: 1px dashed rgba(248, 248, 249, 0.24);
+        border-radius: 14px;
+        background: transparent;
+        color: var.$ligth-gray;
+        cursor: pointer;
+        font: inherit;
+        text-align: center;
+        transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+
+        &:hover,
+        &:focus-visible {
+            border-color: var.$primary-color;
+            background: var.$opacolor-15;
+            color: var.$white;
+        }
+    }
+
+    &__plus {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 30px;
+        place-items: center;
+        border-radius: 50%;
+        background: var.$opacolor-30;
+        color: var.$primary-color;
+        font-size: 22px;
+        line-height: 1;
+    }
+
+    &__games {
+        display: grid;
+        gap: 24px;
+    }
+
+    &__game {
+        h3 {
+            margin: 0 0 12px;
+            color: var.$ligth-gray;
+            font-size: 15px;
+        }
+
+        ul {
+            display: grid;
+            gap: 10px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 18px;
+        border: 1px solid rgba(248, 248, 249, 0.1);
+        border-radius: 14px;
+        background: rgba(0, 0, 1, 0.18);
+
+        h4 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        p {
+            margin: 5px 0 0;
+            color: var.$gray-logo;
+            font-size: 14px;
+        }
+
+        a {
+            flex: 0 0 auto;
+            color: var.$primary-color;
+            font-weight: 700;
+            text-decoration: none;
+
+            &:hover,
+            &:focus-visible {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+@media (max-width: 560px) {
+    .profile-decks {
+        padding: 22px 18px;
+
+        &__item {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+}

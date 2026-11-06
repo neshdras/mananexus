@@ -1,1 +1,21 @@
-@use '../../styles/base/variable'
+@use '../../styles/base/variable' as *;
+header{
+    display: flex;
+    align-items: center;
+    max-width: 1440px;
+    margin: auto;
+    justify-content: space-between;
+    img{
+        max-width: 100px;
+    }
+    ul{
+        display: flex;
+        gap: 20px;
+        list-style: none;
+        a{
+            color: $white;
+            text-decoration: none;
+            font-family: $sec-font;
+        }
+    }
+}

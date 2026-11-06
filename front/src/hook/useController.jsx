@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 
 function useController() {
     
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
     const controllerRef = useRef(null)
-    const loadFetch = async (request, info) => {
+    const loadFetch = useCallback(async (request, info) => {
         setErrorMessage(null)
         if(controllerRef.current)
             controllerRef.current.abort()
@@ -18,14 +18,14 @@ function useController() {
             return await request(info, controller.signal)
         } catch (err) {
             console.error("USE CONTROLLER - erreur:", err)
-            if(err.name !== 'AbortError')
-                setErrorMessage(`Loading error: ${err}`)
+            if(err.name !== 'AbortError' && !controller.signal.aborted && controller === controllerRef.current)
+                setErrorMessage(`Loading error: ${err.message}`)
             throw err
         } finally{
             if(!controller.signal.aborted && controller === controllerRef.current)
                 setLoading(false)
         }
-    }
+    }, [])
     
     useEffect(()=>{
         return ()=>{

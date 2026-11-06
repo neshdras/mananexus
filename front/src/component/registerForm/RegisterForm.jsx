@@ -2,17 +2,20 @@ import { useState } from 'react'
 import useController  from '../../hook/useController'
 import { apiService } from "../../services/apiService"
 import './registerForm.scss'
-
-
+import {useNavigate} from 'react-router-dom'
+import useStoreUser from "../../hook/storeUser"
+import { LogoLoader } from '../logoLoader/LogoLoader'
 function FormRegister() {
   const query = apiService.auth.register
   const { loading, errorMessage, loadFetch} = useController()
   const [dataForm, setDataForm] = useState({firstname:"", lastname:"", email:"", password:""})
   const [info, setInfo] = useState(null)
+  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [isAgree, setIsAgree] = useState(false)
   const regexPassword = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$/
   const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+  const setUser = useStoreUser((state) => state.setUser)
+  const navigate = useNavigate()
 
   async function handleSubmit(e){
     e.preventDefault()
@@ -22,6 +25,9 @@ function FormRegister() {
     
     if(!regexPassword.test(dataForm.password)) 
       return setInfo(`Le mot de passe doit contenir minimum 8 caractères, une minuscule, une majuscule, une chiffre et un symbole.`)
+
+    if(passwordConfirm !== dataForm.password)
+      return setInfo('Les mots de passe ne sont pas identiques.')
     
     if(!regexMail.test(dataForm.email)) 
       return setInfo('Veuillez renseigner une adresse mail valide.')
@@ -29,16 +35,16 @@ function FormRegister() {
     const res = await loadFetch(query, dataForm)
     
     if(res?.token){
-      setInfo(res)
+        setUser(res.user) 
+        navigate('/profile', {replace: true})
     }
   }
   
   return(
     <section id="registerForm">
 
-    <p className='load'>{loading? "Loading..." : ""}</p>
+    {loading? <LogoLoader/> : ""}
     <p className='err'>{errorMessage? "Erreur lors du chargement, veuillez réessayer plus tard" : ""}</p>
-    <p>{loading === true ? "Loading..." : ""}</p>
     <form onSubmit={handleSubmit}>
       <p className="info">{info}</p>
       <label htmlFor="firstname">Prénom: </label>
@@ -51,6 +57,11 @@ function FormRegister() {
       <input type="text" name="pseudo" id="pseudo" placeholder="Votre pseudo" autoComplete='username' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
       <label htmlFor="pass">Password</label>
       <input type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+      <label htmlFor="pass-confirm">Confirmation Password</label>
+      <input type="password" name="pass-confirm" id="pass-confirm" disabled={loading} onChange={(e) => {
+        setPasswordConfirm(e.target.value)
+        setInfo(e.target.value !== dataForm.password ? 'Les mots de passe ne sont pas identiques.' : null)
+      }}/>
       <label htmlFor="rgpd"><input type="checkbox" name="rgpd" id="rgpd" onChange={()=>setIsAgree(!isAgree)} /> En cochant cette case, je suis d'accord de partager les informations donnée ci-dessus avec Nexus Shuffle</label>
       <button type="submit" disabled={loading}>{loading ? "Loading..." : "Inscription"}</button>
     </form>

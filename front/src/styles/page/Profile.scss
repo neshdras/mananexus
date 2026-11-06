@@ -1,0 +1,51 @@
+@use '../base/variable' as var;
+
+.profile-page {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+
+    &__content {
+        display: grid;
+        width: min(100% - 40px, 1050px);
+        gap: 24px;
+        margin: 32px auto 48px;
+    }
+
+    &__error {
+        padding: 18px 22px;
+        border: 1px solid rgba(210, 114, 113, 0.5);
+        border-radius: 14px;
+        background: rgba(210, 114, 113, 0.1);
+
+        p {
+            margin: 0 0 12px;
+        }
+
+        button {
+            padding: 9px 14px;
+            border: 0;
+            border-radius: 8px;
+            background: var.$primary-color;
+            color: var.$white;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+        }
+    }
+
+    footer {
+        margin-top: auto;
+        padding: 18px 0;
+    }
+}
+
+@media (max-width: 560px) {
+    .profile-page {
+        &__content {
+            width: min(100% - 24px, 1050px);
+            margin: 22px auto 32px;
+            gap: 16px;
+        }
+    }
+}

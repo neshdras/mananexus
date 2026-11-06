@@ -1,5 +1,5 @@
 // const browserUrl = window.location.href
-// const isLocalHost = browserUrl.includes('localgost') 
+// const isLocalHost = browserUrl.includes('localhost') 
 
 // const BASE_URL = isLocalHost
 //     ? 'http://localhost:3000/api/v1/'
@@ -25,14 +25,22 @@ const apiRequest = async (url, options = {}, retry = false)=>{
 }
 export const apiService = {
     auth: {
+        async session() {
+            const req = await apiRequest('/auth/me')
+            if (req.status === 401) return null
+            if (!req.ok) throw new Error(`Error HTTP: ${req.status}`)
+            const data = await req.json()
+            return data.user
+        },
         async login(info, signal){
             const {identifiant, password} = info
-                const req = await apiRequest(`/auth/login`, {
+                const req = await fetch(`${BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({identifiant, password}),
+                    credentials: 'include',
                     signal,
             })
     
@@ -43,7 +51,7 @@ export const apiService = {
         },
         async register(info, signal){
             const {firstname, lastname, email, password, pseudo} = info
-                const req = await apiRequest(`/auth/register`, {
+                const req = await fetch(`/auth/register`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
@@ -59,7 +67,7 @@ export const apiService = {
         },
         async sendTokenBd(info, signal){
             const {email} = info
-                const req = await apiRequest(`/auth/send`, {
+                const req = await fetch(`/auth/send`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
@@ -75,7 +83,7 @@ export const apiService = {
         },
         async resetPass(info, signal){
             const {password, token} = info
-                const req = await apiRequest(`/auth/reset/${token}`, {
+                const req = await fetch(`/auth/reset/${token}`, {
                     method: 'POST',
                     headers : {
                         'Content-Type': 'application/json'
@@ -115,10 +123,13 @@ export const apiService = {
                 body: JSON.stringify({firstname, lastname, email, password, pseudo}),
                 signal
             })
-            if(!req.ok)
-                throw new Error(`Error HTTP : ${req.status}`);
-            
-            return await req.json()
+            const data = await req.json().catch(() => ({}))
+            if(!req.ok) {
+                const detail = data.invalidParams?.[0]?.message ?? data.detail
+                throw new Error(detail || `Error HTTP: ${req.status}`)
+            }
+
+            return data
         },
         async ranking(signal){
             const req = await apiRequest('/user/ranking', {
@@ -130,8 +141,50 @@ export const apiService = {
             return req.json()
         }
     },
+    deck: {
+        async create(info, signal) {
+            const { gameId, name, format, url } = info
+            const req = await apiRequest(`/deck/adddeck/${gameId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, format, url }),
+                signal,
+            })
+
+            const data = await req.json().catch(() => ({}))
+            if (!req.ok) {
+                const detail = data.invalidParams?.[0]?.message ?? data.detail
+                throw new Error(detail || `Error HTTP: ${req.status}`)
+            }
+            if (!data.deck)
+                throw new Error('Réponse invalide du serveur')
+            return data.deck
+        },
+        async profile(userId, signal) {
+            const req = await apiRequest(`/deck/profile/${userId}`, { signal })
+            if (!req.ok)
+                throw new Error(`Error HTTP: ${req.status}`)
+
+            const data = await req.json()
+            if (!Array.isArray(data.decks))
+                throw new Error('Réponse invalide du serveur')
+            return data
+        }
+    },
+    game: {
+        async seeAll(_info, signal) {
+            const req = await apiRequest('/game/seeAll', { signal })
+            if (!req.ok)
+                throw new Error(`Error HTTP: ${req.status}`)
+
+            const data = await req.json()
+            if (!Array.isArray(data.games))
+                throw new Error('Réponse invalide du serveur')
+            return data
+        }
+    },
     tournament: {
-        async seeAll(signal){
+        async seeAll(_info, signal){
             const req = await apiRequest('/tournament/seeAll',{
                 signal
             })
@@ -139,7 +192,10 @@ export const apiService = {
                 throw new Error(`Error HTTP: ${req.status}`);
                 
 
-            return req.json()
+            const data = await req.json()
+            if (!Array.isArray(data.tournaments))
+                throw new Error('Réponse invalide du serveur')
+            return data
         },
         async create(info, signal){
             const { name, format, date, price, paf, location} = info
@@ -151,10 +207,13 @@ export const apiService = {
                 body:JSON.stringify({name, format, date, price, paf, location}),
                 signal
             })
-            if(!req.info)
-                throw new Error(`Error HTTP: ${req.status}`);
-            
-            return req.json()
+            const data = await req.json().catch(() => ({}))
+            if(!req.ok) {
+                const detail = data.invalidParams?.[0]?.message ?? data.detail
+                throw new Error(detail || `Error HTTP: ${req.status}`)
+            }
+
+            return data
         },
         async update(info, signal){
             const { name, format, date, price, paf, location, id} = info

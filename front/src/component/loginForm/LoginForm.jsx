@@ -1,8 +1,13 @@
 import useController from "../../hook/useController"
 import { useState } from "react"
 import { apiService } from "../../services/apiService"
+import {useNavigate} from 'react-router-dom'
+import useAuth from "../../hook/useAuth"
+import {LogoLoader} from "../logoLoader/LogoLoader"
 import './loginForm.scss'
 function Login() {
+  const { setUser } = useAuth()
+  const navigate = useNavigate()
     const regexPassword = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$/
     const query = apiService.auth.login
     const {loading, errorMessage, loadFetch} = useController()
@@ -15,15 +20,17 @@ function Login() {
         if(!regexPassword.test(info.password))
           return setMessage("Le mot de passe doit contenir minimum 8 caractères, une minuscule, une majuscule, une chiffre et un symbole.")
 
-        const res = await loadFetch(query, info)
-        console.log(res.status)
+          const res = await loadFetch(query, info)
+          setUser(res.user)
+          navigate('/profile', {replace: true})
+        
     }
-
+    //Erreur lors du chargement, veuillez réessayer plus tard
   return (
     <div id="loginForm">
     <form onSubmit={handleSubmit}>
-          <p className='load'>{loading? "Loading..." : ""}</p>
-    <p className='err'>{errorMessage? "Erreur lors du chargement, veuillez réessayer plus tard" : ""}</p>
+          {loading? <LogoLoader/> : ""}
+    <p className='err'>{errorMessage? errorMessage : ""}</p>
         <p className="info">{message}</p>
         <label htmlFor="identifiant">Identifiant: </label>
         <input type="text" name="identifiant" id="identifiant" placeholder="you@example.com" autoComplete="username" onChange={(e) => setInfo(prev => ({...prev, identifiant: e.target.value}))}/>

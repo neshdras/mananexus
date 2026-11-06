@@ -3,10 +3,62 @@
     margin: 0 auto;
     padding: 24px;
 
+    &__heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+
+        h1 {
+            margin: 0;
+        }
+
+        button {
+            display: inline-flex;
+            min-height: 44px;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 10px 16px;
+            border: 1px solid #D27271;
+            border-radius: 10px;
+            background: #D27271;
+            color: #F8F8F9;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            white-space: nowrap;
+
+            span {
+                font-size: 20px;
+                line-height: 1;
+            }
+
+            &:hover,
+            &:focus-visible {
+                background: #B95C5B;
+                border-color: #B95C5B;
+            }
+        }
+    }
+
     .tournament-list {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
         gap: 24px;
         margin-top: 24px;
+    }
+}
+
+@media (max-width: 560px) {
+    .tournament-page {
+        &__heading {
+            align-items: flex-start;
+            flex-direction: column;
+
+            button {
+                width: 100%;
+            }
+        }
     }
 }
