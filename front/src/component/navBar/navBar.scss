@@ -79,6 +79,8 @@
 
 @media (max-width: 600px) {
     .nav-bar {
+        position: relative;
+        z-index: 1000;
         justify-content: space-between;
         flex-direction: row;
         flex-wrap: wrap;
@@ -124,11 +126,17 @@
         }
 
         &__nav {
+            position: absolute;
+            top: calc(100% + 0.25rem);
+            left: 0;
             display: none;
             width: 100%;
-            flex-basis: 100%;
-            padding: 0.75rem 0;
-            border-top: 1px solid $opacolor-15;
+            box-sizing: border-box;
+            padding: 1rem;
+            border: 1px solid $opacolor-30;
+            border-radius: 14px;
+            background: $black;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
         }
 
         &__nav--open {
