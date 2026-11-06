@@ -3,7 +3,7 @@ const router = express.Router()
 const validate = require('../middleware/validateMiddleware')
 const {deckSchema} = require('../schemas/deckSchema')
 const {authMiddleware} = require('../middleware/authMiddleware')
-const {addDeck, seeMyDecks, deleteDeck} = require('../controller/deckController')
+const {addDeck, seeMyDecks, seeUserDecks, deleteDeck} = require('../controller/deckController')
 
 /**
  * @swagger
@@ -250,6 +250,7 @@ router.post('/adddeck/:gameId', authMiddleware, validate(deckSchema), addDeck)
  *         description: Erreur serveur lors de la consultation des decklists.
  */
 router.get('/game/:gameId', authMiddleware, seeMyDecks)
+router.get('/profile/:userId', authMiddleware, seeUserDecks)
 /**
  * @swagger
  * /api/v1/deck/delete/{id}:

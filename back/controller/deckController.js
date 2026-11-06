@@ -1,17 +1,12 @@
-const { insertDeck, getDecksByUserAndGame, deleteDeckByIdAndUser } = require('../model/deckModel')
+const { insertDeck, getDecksByUserAndGame, getDecksByUser, deleteDeckByIdAndUser } = require('../model/deckModel')
 
-const getGameId = (value) => {
-    const gameId = Number(value)
-    return Number.isInteger(gameId) && gameId > 0 ? gameId : null
-}
-
-const getDeckId = (value) => {
-    const deckId = Number(value)
-    return Number.isInteger(deckId) && deckId > 0 ? deckId : null
+const getPositiveId = (value) => {
+    const id = Number(value)
+    return Number.isInteger(id) && id > 0 ? id : null
 }
 
 exports.addDeck = async (req, res) => {
-    const gameId = getGameId(req.params.gameId)
+    const gameId = getPositiveId(req.params.gameId)
     if (!gameId)
         return res.status(400).json({
             title: 'Bad request',
@@ -37,7 +32,7 @@ exports.addDeck = async (req, res) => {
 }
 
 exports.seeMyDecks = async (req, res) => {
-    const gameId = getGameId(req.params.gameId)
+    const gameId = getPositiveId(req.params.gameId)
     if (!gameId)
         return res.status(400).json({
             title: 'Bad request',
@@ -62,8 +57,34 @@ exports.seeMyDecks = async (req, res) => {
     }
 }
 
+exports.seeUserDecks = async (req, res) => {
+    const userId = getPositiveId(req.params.userId)
+    if (!userId)
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: 'Invalid user id'
+        })
+
+    try {
+        const decks = await getDecksByUser(userId)
+        return res.status(200).json({
+            title: 'Decklists retrieved',
+            status: 200,
+            detail: 'The requested user decklists were retrieved successfully',
+            decks
+        })
+    } catch (err) {
+        return res.status(500).json({
+            title: 'Server error',
+            status: 500,
+            detail: err.message
+        })
+    }
+}
+
 exports.deleteDeck = async (req, res) => {
-    const deckId = getDeckId(req.params.id)
+    const deckId = getPositiveId(req.params.id)
     if (!deckId)
         return res.status(400).json({
             title: 'Bad request',

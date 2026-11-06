@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = process.env.PORT || 3000
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
 const helmet = require('helmet')
@@ -36,11 +36,13 @@ const routeTournament = require('./route/tournamentRoute')
 const routeAuth = require('./route/authRoute')
 const routeUser = require('./route/userRoute')
 const routeDeck = require('./route/deckRoute')
+const routeGame = require('./route/gameRoute')
 
 app.use('/api/v1/auth', routeAuth)
 app.use('/api/v1/user', routeUser)
 app.use('/api/v1/tournament', routeTournament)
 app.use('/api/v1/deck', routeDeck)
+app.use('/api/v1/game', routeGame)
 /**
  * @swagger
  * /:

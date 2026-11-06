@@ -35,6 +35,14 @@ exports.findUserById = async (id) => {
 
     return rows[0] || null;
 }
+
+exports.findPublicProfileById = async (id) => {
+    const { rows } = await db.query(
+        'SELECT id_user, firstname_user, lastname_user, pseudo_user, picture_user FROM users WHERE id_user = $1',
+        [id]
+    )
+    return rows[0] || null
+}
 exports.updateUser = async (user) =>{
     const updateText = 'UPDATE users SET firstname_user = $1, lastname_user = $2, pseudo_user = $3, email_user = $4, password_user = $5, picture_user = $6 WHERE id_user = $7 RETURNING *'
     const updateValue = [

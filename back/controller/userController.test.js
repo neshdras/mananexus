@@ -17,27 +17,34 @@ describe('User Controller', () => {
     })
 
     describe('getProfile', () => {
-        it('should return the connected user when no id is supplied', async () => {
+        it('should reject a profile request without a valid id', async () => {
             await getProfile(req, res)
-            expect(res.status).toHaveBeenCalledWith(200)
-            expect(res.json).toHaveBeenCalledWith({ title: 'Profile retrieved', status: 200, detail: 'The connected user profile was retrieved successfully', user: req.user })
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Bad request', status: 400, detail: 'Invalid user id' })
             expect(db.query).not.toHaveBeenCalled()
         })
-        it('should await the profile requested by id', async () => {
+        it('should return only public fields for the profile requested by id', async () => {
             req.params.id = '2'
-            const user = { id_user: 2, pseudo_user: 'Batman' }
+            const user = { id_user: 2, firstname_user: 'Bruce', lastname_user: 'Wayne', pseudo_user: 'Batman', picture_user: null }
             db.query.mockResolvedValueOnce({ rows: [user] })
             await getProfile(req, res)
-            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('id_user = $1'), ['2'])
+            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('SELECT id_user, firstname_user, lastname_user, pseudo_user, picture_user'), [2])
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledWith({ title: 'Profile retrieved', status: 200, detail: 'The requested user profile was retrieved successfully', user })
         })
-        it('should return a null profile if user does not exist', async () => {
+        it('should return 404 if user does not exist', async () => {
             req.params.id = '99'
             db.query.mockResolvedValueOnce({ rows: [] })
             await getProfile(req, res)
-            expect(res.status).toHaveBeenCalledWith(200)
-            expect(res.json).toHaveBeenCalledWith({ title: 'Profile retrieved', status: 200, detail: 'The requested user profile was retrieved successfully', user: null })
+            expect(res.status).toHaveBeenCalledWith(404)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Not found', status: 404, detail: 'User profile not found' })
+        })
+        it('should return 500 if profile lookup fails', async () => {
+            req.params.id = '2'
+            db.query.mockRejectedValueOnce(new Error('Database unavailable'))
+            await getProfile(req, res)
+            expect(res.status).toHaveBeenCalledWith(500)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Server error', status: 500, detail: 'Database unavailable' })
         })
     })
 
@@ -70,6 +77,18 @@ describe('User Controller', () => {
             expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('email_user = $1'), ['bruce@mail.com'])
             expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('pseudo_user = $1'), ['Batman'])
             expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('UPDATE users'), ['Clark', 'Kent', 'Batman', 'bruce@mail.com', 'new-hash', 'avatar.png', 1])
+            expect(res.status).toHaveBeenCalledWith(200)
+        })
+        it('should allow the connected user to keep their existing email and pseudo', async () => {
+            req.body = { email: 'test@mail.com', pseudo: 'Superman' }
+            db.query
+                .mockResolvedValueOnce({ rows: [{ id_user: 1 }] })
+                .mockResolvedValueOnce({ rows: [{ id_user: 1 }] })
+                .mockResolvedValueOnce({ rows: [] })
+
+            await updateUser(req, res)
+
+            expect(db.query).toHaveBeenCalledTimes(3)
             expect(res.status).toHaveBeenCalledWith(200)
         })
         it.each([

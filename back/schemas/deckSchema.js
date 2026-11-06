@@ -8,7 +8,7 @@ const deckUrlSchema = z.string()
     .refine((value) => {
         const url = new URL(value)
         return (
-            ['https', 'http'].includes(url.protocol) &&
+            ['https:', 'http:'].includes(url.protocol) &&
             domainesAutorises.includes(url.hostname)
         )
     }, {

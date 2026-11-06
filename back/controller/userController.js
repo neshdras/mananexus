@@ -3,23 +3,36 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 
 exports.getProfile = async (req, res) => {
-    const id = req.params.id
-    if(!id){
-        // Faire appel au model qui renvoie info user et faire un return 
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id) || id < 1)
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: 'Invalid user id'
+        })
+
+    try {
+        const user = await User.findPublicProfileById(id)
+        if (!user)
+            return res.status(404).json({
+                title: 'Not found',
+                status: 404,
+                detail: 'User profile not found'
+            })
+
         return res.status(200).json({
             title: 'Profile retrieved',
             status: 200,
-            detail: 'The connected user profile was retrieved successfully',
-            user: req.user
+            detail: 'The requested user profile was retrieved successfully',
+            user
+        })
+    } catch (err) {
+        return res.status(500).json({
+            title: 'Server error',
+            status: 500,
+            detail: err.message
         })
     }
-    const user = await User.findUserById(id)
-    return res.status(200).json({
-        title: 'Profile retrieved',
-        status: 200,
-        detail: 'The requested user profile was retrieved successfully',
-        user
-    })
 }
 exports.updateUser = async (req, res) => {
     const user = req.user
@@ -47,7 +60,7 @@ exports.updateUser = async (req, res) => {
             })
 
         const existingEmail = await User.findUserByEmail(email)
-        if(existingEmail)
+        if(existingEmail && existingEmail.id_user !== user.id_user)
             return res.status(400).json({
                 title: 'Bad request',
                 status: 400,
@@ -84,7 +97,7 @@ exports.updateUser = async (req, res) => {
             })
 
         const existingPseudo = await User.findUserByPseudo(pseudo)
-        if(existingPseudo)
+        if(existingPseudo && existingPseudo.id_user !== user.id_user)
             return res.status(400).json({
                 title: 'Bad request',
                 status: 400,
