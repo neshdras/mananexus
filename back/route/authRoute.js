@@ -515,6 +515,39 @@ router.post('/reset/:token', validate(resetPasswordSchema) ,forgetPass)
  *         description: Erreur serveur.
  */
 router.post('/refresh', refreshAuth)
+
+/**
+ * @swagger
+ * /api/v1/auth/logout:
+ *   post:
+ *     summary: Déconnecter l’utilisateur
+ *     description: Supprime les cookies tokenAccess et tokenRefresh. La route peut être appelée même si aucune session n’est active.
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       '200':
+ *         description: Cookies de session supprimés.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - title
+ *                 - status
+ *                 - detail
+ *               properties:
+ *                 title:
+ *                   type: string
+ *                   example: Success
+ *                 status:
+ *                   type: integer
+ *                   example: 200
+ *                 detail:
+ *                   type: string
+ *                   example: Logout successfully
+ *       '429':
+ *         description: Trop de requêtes (limite globale de 100 requêtes par 15 minutes).
+ */
 router.post('/logout', logout)
 
 module.exports = router

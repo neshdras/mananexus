@@ -27,96 +27,11 @@
     }
   },
   "paths": {
-    "/api/v1/user/profile/{id}": {
-      "get": {
-        "summary": "Consulter un profil utilisateur",
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "Créer un utilisateur",
         "tags": [
-          "Utilisateurs"
-        ],
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Identifiant de l’utilisateur à consulter.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Réponse contenant la propriété user.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        200
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "user": {
-                      "type": "object",
-                      "nullable": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
-          },
-          "500": {
-            "description": "Erreur serveur."
-          }
-        }
-      }
-    },
-    "/api/v1/user/update": {
-      "patch": {
-        "summary": "Modifier le profil de l’utilisateur connecté",
-        "tags": [
-          "Utilisateurs"
-        ],
-        "security": [
-          {
-            "cookieAuth": []
-          }
+          "Auth"
         ],
         "requestBody": {
           "required": true,
@@ -125,6 +40,13 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": false,
+                "required": [
+                  "firstname",
+                  "lastname",
+                  "email",
+                  "pseudo",
+                  "password"
+                ],
                 "properties": {
                   "firstname": {
                     "type": "string",
@@ -153,7 +75,148 @@
                     "type": "string",
                     "format": "password",
                     "minLength": 6,
-                    "description": "Au moins 6 caractères dont une minuscule, une majuscule, un chiffre et un symbole.",
+                    "description": "Au moins une majuscule, un chiffre et un caractère spécial.",
+                    "example": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé. Définit les cookies tokenRefresh et tokenAcess (orthographe actuelle du contrôleur).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        201
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email ou pseudo déjà utilisé.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Se connecter avec un email ou un pseudo",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "identifiant",
+                  "password"
+                ],
+                "properties": {
+                  "identifiant": {
+                    "type": "string",
+                    "minLength": 3,
+                    "description": "Email valide ou pseudo composé de lettres, chiffres, tirets et underscores.",
+                    "example": "Superman"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "description": "Au moins une majuscule, un chiffre et un caractère spécial.",
                     "example": "Password123!"
                   }
                 }
@@ -163,7 +226,161 @@
         },
         "responses": {
           "200": {
-            "description": "Profil modifié.",
+            "description": "Connexion réussie. Définit les cookies HttpOnly tokenAccess (15 minutes) et tokenRefresh (7 jours).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id_user": {
+                          "type": "integer"
+                        },
+                        "firstname_user": {
+                          "type": "string"
+                        },
+                        "lastname_user": {
+                          "type": "string"
+                        },
+                        "pseudo_user": {
+                          "type": "string"
+                        },
+                        "email_user": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "picture_user": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Identifiants incorrects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        401
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/send": {
+      "post": {
+        "summary": "Obtenir un jeton de réinitialisation du mot de passe",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "clark@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email de réinitialisation envoyé avec succès.",
             "content": {
               "application/json": {
                 "schema": {
@@ -192,7 +409,512 @@
             }
           },
           "400": {
-            "description": "Email ou pseudo déjà utilisé, ou données refusées par le contrôleur.",
+            "description": "Email invalide ou utilisateur introuvable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset/{token}": {
+      "post": {
+        "summary": "Réinitialiser le mot de passe",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "description": "Jeton reçu via /api/v1/auth/send.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "password"
+                ],
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6,
+                    "description": "Au moins 6 caractères dont une minuscule, une majuscule, un chiffre et un symbole.",
+                    "example": "Password123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mot de passe modifié.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Mot de passe trop faible, jeton expiré ou non enregistré.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Corps rejeté par la validation Zod.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Data invalid"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 422
+                    },
+                    "invalidParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string"
+                          },
+                          "message": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        500
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "summary": "Renouveler le jeton d’accès",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "refreshCookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jeton renouvelé pour 15 minutes via le cookie tokenAccess.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Jeton de renouvellement invalide ou expiré.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cookie tokenRefresh absent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur."
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "Déconnecter l’utilisateur",
+        "description": "Supprime les cookies tokenAccess et tokenRefresh. La route peut être appelée même si aucune session n’est active.",
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "Cookies de session supprimés.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "detail": {
+                      "type": "string",
+                      "example": "Logout successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          }
+        }
+      }
+    },
+    "/api/v1/deck/adddeck/{gameId}": {
+      "post": {
+        "summary": "Ajouter une decklist pour un jeu",
+        "tags": [
+          "Decklists"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "description": "La decklist est associée à l’utilisateur connecté.",
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du jeu.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 3
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "format",
+                  "url"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Mon deck Commander"
+                  },
+                  "format": {
+                    "type": "string",
+                    "minLength": 2,
+                    "example": "Commander"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Lien HTTP(S) provenant de moxfield.com, piltoverarchive.com ou riftdecks.com.",
+                    "example": "https://moxfield.com/decks/example"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Decklist créée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "deck"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Created"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        201
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "deck": {
+                      "type": "object",
+                      "properties": {
+                        "id_decklist": {
+                          "type": "integer"
+                        },
+                        "fk_id_user": {
+                          "type": "integer"
+                        },
+                        "fk_id_game": {
+                          "type": "integer"
+                        },
+                        "name_decklist": {
+                          "type": "string"
+                        },
+                        "format_decklist": {
+                          "type": "string"
+                        },
+                        "url_decklist": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant du jeu invalide.",
             "content": {
               "application/json": {
                 "schema": {
@@ -273,25 +995,7 @@
             "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
           },
           "500": {
-            "description": "Erreur serveur."
-          }
-        }
-      }
-    },
-    "/api/v1/user/ranking": {
-      "get": {
-        "summary": "Consulter le classement des utilisateurs",
-        "tags": [
-          "Utilisateurs"
-        ],
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Classement par points de victoire croissants.",
+            "description": "Erreur serveur lors de la création de la decklist.",
             "content": {
               "application/json": {
                 "schema": {
@@ -308,31 +1012,125 @@
                     "status": {
                       "type": "integer",
                       "enum": [
+                        500
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deck/game/{gameId}": {
+      "get": {
+        "summary": "Consulter les decklists de l’utilisateur connecté pour un jeu",
+        "tags": [
+          "Decklists"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "gameId",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant du jeu.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des decklists de l’utilisateur connecté pour ce jeu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "decks"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
                         200
                       ]
                     },
                     "detail": {
                       "type": "string"
                     },
-                    "ranking": {
+                    "decks": {
                       "type": "array",
                       "items": {
                         "type": "object",
                         "properties": {
-                          "firstname": {
-                            "type": "string"
-                          },
-                          "lastname": {
-                            "type": "string"
-                          },
-                          "pseudo": {
-                            "type": "string"
-                          },
-                          "victorypts": {
+                          "id_decklist": {
                             "type": "integer"
+                          },
+                          "fk_id_user": {
+                            "type": "integer"
+                          },
+                          "fk_id_game": {
+                            "type": "integer"
+                          },
+                          "name_decklist": {
+                            "type": "string"
+                          },
+                          "format_decklist": {
+                            "type": "string"
+                          },
+                          "url_decklist": {
+                            "type": "string",
+                            "format": "uri"
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant du jeu invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
                     }
                   }
                 }
@@ -358,7 +1156,170 @@
             "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
           },
           "500": {
-            "description": "Erreur serveur."
+            "description": "Erreur serveur lors de la consultation des decklists."
+          }
+        }
+      }
+    },
+    "/api/v1/deck/delete/{id}": {
+      "delete": {
+        "summary": "Supprimer une decklist de l’utilisateur connecté",
+        "tags": [
+          "Decklists"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "description": "Seule une decklist appartenant à l’utilisateur connecté peut être supprimée.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Identifiant de la decklist à supprimer.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 7
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decklist supprimée.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "deck"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "Deleted"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        200
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    },
+                    "deck": {
+                      "type": "object",
+                      "properties": {
+                        "id_decklist": {
+                          "type": "integer"
+                        },
+                        "fk_id_user": {
+                          "type": "integer"
+                        },
+                        "fk_id_game": {
+                          "type": "integer"
+                        },
+                        "name_decklist": {
+                          "type": "string"
+                        },
+                        "format_decklist": {
+                          "type": "string"
+                        },
+                        "url_decklist": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant de la decklist invalide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        400
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Decklist introuvable ou n’appartenant pas à l’utilisateur connecté.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "status",
+                    "detail"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "integer",
+                      "enum": [
+                        404
+                      ]
+                    },
+                    "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
+          },
+          "500": {
+            "description": "Erreur serveur lors de la suppression de la decklist."
           }
         }
       }
@@ -1216,451 +2177,31 @@
         }
       }
     },
-    "/api/v1/deck/adddeck/{gameId}": {
-      "post": {
-        "summary": "Ajouter une decklist pour un jeu",
-        "tags": [
-          "Decklists"
-        ],
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
-        "description": "La decklist est associée à l’utilisateur connecté.",
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "path",
-            "required": true,
-            "description": "Identifiant du jeu.",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            },
-            "example": 3
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "name",
-                  "format",
-                  "url"
-                ],
-                "properties": {
-                  "name": {
-                    "type": "string",
-                    "minLength": 2,
-                    "example": "Mon deck Commander"
-                  },
-                  "format": {
-                    "type": "string",
-                    "minLength": 2,
-                    "example": "Commander"
-                  },
-                  "url": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "Lien HTTP(S) provenant de moxfield.com, piltoverarchive.com ou riftdecks.com.",
-                    "example": "https://moxfield.com/decks/example"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Decklist créée.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail",
-                    "deck"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "example": "Created"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        201
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "deck": {
-                      "type": "object",
-                      "properties": {
-                        "id_decklist": {
-                          "type": "integer"
-                        },
-                        "fk_id_user": {
-                          "type": "integer"
-                        },
-                        "fk_id_game": {
-                          "type": "integer"
-                        },
-                        "name_decklist": {
-                          "type": "string"
-                        },
-                        "format_decklist": {
-                          "type": "string"
-                        },
-                        "url_decklist": {
-                          "type": "string",
-                          "format": "uri"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Identifiant du jeu invalide.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        400
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Corps rejeté par la validation Zod.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "example": "Data invalid"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "example": 422
-                    },
-                    "invalidParams": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
-          },
-          "500": {
-            "description": "Erreur serveur lors de la création de la decklist.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        500
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/deck/game/{gameId}": {
+    "/api/v1/user/profile/{id}": {
       "get": {
-        "summary": "Consulter les decklists de l’utilisateur connecté pour un jeu",
+        "summary": "Consulter un profil utilisateur",
         "tags": [
-          "Decklists"
+          "Utilisateurs"
         ],
         "security": [
           {
             "cookieAuth": []
           }
         ],
-        "parameters": [
-          {
-            "name": "gameId",
-            "in": "path",
-            "required": true,
-            "description": "Identifiant du jeu.",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            },
-            "example": 3
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Liste des decklists de l’utilisateur connecté pour ce jeu.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail",
-                    "decks"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        200
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "decks": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id_decklist": {
-                            "type": "integer"
-                          },
-                          "fk_id_user": {
-                            "type": "integer"
-                          },
-                          "fk_id_game": {
-                            "type": "integer"
-                          },
-                          "name_decklist": {
-                            "type": "string"
-                          },
-                          "format_decklist": {
-                            "type": "string"
-                          },
-                          "url_decklist": {
-                            "type": "string",
-                            "format": "uri"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Identifiant du jeu invalide.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        400
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
-          },
-          "500": {
-            "description": "Erreur serveur lors de la consultation des decklists."
-          }
-        }
-      }
-    },
-    "/api/v1/deck/delete/{id}": {
-      "delete": {
-        "summary": "Supprimer une decklist de l’utilisateur connecté",
-        "tags": [
-          "Decklists"
-        ],
-        "security": [
-          {
-            "cookieAuth": []
-          }
-        ],
-        "description": "Seule une decklist appartenant à l’utilisateur connecté peut être supprimée.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "Identifiant de la decklist à supprimer.",
+            "description": "Identifiant de l’utilisateur à consulter.",
             "schema": {
-              "type": "integer",
-              "minimum": 1
-            },
-            "example": 7
+              "type": "string"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Decklist supprimée.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail",
-                    "deck"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "example": "Deleted"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        200
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "deck": {
-                      "type": "object",
-                      "properties": {
-                        "id_decklist": {
-                          "type": "integer"
-                        },
-                        "fk_id_user": {
-                          "type": "integer"
-                        },
-                        "fk_id_game": {
-                          "type": "integer"
-                        },
-                        "name_decklist": {
-                          "type": "string"
-                        },
-                        "format_decklist": {
-                          "type": "string"
-                        },
-                        "url_decklist": {
-                          "type": "string",
-                          "format": "uri"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Identifiant de la decklist invalide.",
+            "description": "Réponse contenant la propriété user.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1677,11 +2218,15 @@
                     "status": {
                       "type": "integer",
                       "enum": [
-                        400
+                        200
                       ]
                     },
                     "detail": {
                       "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "nullable": true
                     }
                   }
                 }
@@ -1703,49 +2248,25 @@
               }
             }
           },
-          "404": {
-            "description": "Decklist introuvable ou n’appartenant pas à l’utilisateur connecté.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        404
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "429": {
             "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
           },
           "500": {
-            "description": "Erreur serveur lors de la suppression de la decklist."
+            "description": "Erreur serveur."
           }
         }
       }
     },
-    "/api/v1/auth/register": {
-      "post": {
-        "summary": "Créer un utilisateur",
+    "/api/v1/user/update": {
+      "patch": {
+        "summary": "Modifier le profil de l’utilisateur connecté",
         "tags": [
-          "Auth"
+          "Utilisateurs"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
         ],
         "requestBody": {
           "required": true,
@@ -1754,13 +2275,6 @@
               "schema": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                  "firstname",
-                  "lastname",
-                  "email",
-                  "pseudo",
-                  "password"
-                ],
                 "properties": {
                   "firstname": {
                     "type": "string",
@@ -1789,443 +2303,6 @@
                     "type": "string",
                     "format": "password",
                     "minLength": 6,
-                    "description": "Au moins une majuscule, un chiffre et un caractère spécial.",
-                    "example": "Password123!"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Utilisateur créé. Définit les cookies tokenRefresh et tokenAcess (orthographe actuelle du contrôleur).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        201
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "user": {
-                      "type": "object"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Email ou pseudo déjà utilisé.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        400
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Corps rejeté par la validation Zod.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "example": "Data invalid"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "example": 422
-                    },
-                    "invalidParams": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
-          },
-          "500": {
-            "description": "Erreur serveur."
-          }
-        }
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "summary": "Se connecter avec un email ou un pseudo",
-        "tags": [
-          "Auth"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "identifiant",
-                  "password"
-                ],
-                "properties": {
-                  "identifiant": {
-                    "type": "string",
-                    "minLength": 3,
-                    "description": "Email valide ou pseudo composé de lettres, chiffres, tirets et underscores.",
-                    "example": "Superman"
-                  },
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "minLength": 6,
-                    "description": "Au moins une majuscule, un chiffre et un caractère spécial.",
-                    "example": "Password123!"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Connexion réussie. Définit les cookies HttpOnly tokenAccess (15 minutes) et tokenRefresh (7 jours).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        200
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    },
-                    "user": {
-                      "type": "object",
-                      "properties": {
-                        "id_user": {
-                          "type": "integer"
-                        },
-                        "firstname_user": {
-                          "type": "string"
-                        },
-                        "lastname_user": {
-                          "type": "string"
-                        },
-                        "pseudo_user": {
-                          "type": "string"
-                        },
-                        "email_user": {
-                          "type": "string",
-                          "format": "email"
-                        },
-                        "picture_user": {
-                          "type": "string",
-                          "nullable": true
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Identifiants incorrects.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        401
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Corps rejeté par la validation Zod.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "example": "Data invalid"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "example": 422
-                    },
-                    "invalidParams": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
-          },
-          "500": {
-            "description": "Erreur serveur."
-          }
-        }
-      }
-    },
-    "/api/v1/auth/send": {
-      "post": {
-        "summary": "Obtenir un jeton de réinitialisation du mot de passe",
-        "tags": [
-          "Auth"
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "email"
-                ],
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email",
-                    "example": "clark@example.com"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Email de réinitialisation envoyé avec succès.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        200
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Email invalide ou utilisateur introuvable.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        400
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Corps rejeté par la validation Zod.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "title": {
-                      "type": "string",
-                      "example": "Data invalid"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "example": 422
-                    },
-                    "invalidParams": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "path": {
-                            "type": "string"
-                          },
-                          "message": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
-          },
-          "500": {
-            "description": "Erreur serveur."
-          }
-        }
-      }
-    },
-    "/api/v1/auth/reset/{token}": {
-      "post": {
-        "summary": "Réinitialiser le mot de passe",
-        "tags": [
-          "Auth"
-        ],
-        "parameters": [
-          {
-            "name": "token",
-            "in": "path",
-            "required": true,
-            "description": "Jeton reçu via /api/v1/auth/send.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "password"
-                ],
-                "properties": {
-                  "password": {
-                    "type": "string",
-                    "format": "password",
-                    "minLength": 6,
                     "description": "Au moins 6 caractères dont une minuscule, une majuscule, un chiffre et un symbole.",
                     "example": "Password123!"
                   }
@@ -2236,7 +2313,7 @@
         },
         "responses": {
           "200": {
-            "description": "Mot de passe modifié.",
+            "description": "Profil modifié.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2265,7 +2342,7 @@
             }
           },
           "400": {
-            "description": "Mot de passe trop faible, jeton expiré ou non enregistré.",
+            "description": "Email ou pseudo déjà utilisé, ou données refusées par le contrôleur.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2286,6 +2363,21 @@
                       ]
                     },
                     "detail": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
                       "type": "string"
                     }
                   }
@@ -2331,51 +2423,25 @@
             "description": "Trop de requêtes (limite globale de 100 requêtes par 15 minutes)."
           },
           "500": {
-            "description": "Erreur serveur.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        500
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+            "description": "Erreur serveur."
           }
         }
       }
     },
-    "/api/v1/auth/refresh": {
-      "post": {
-        "summary": "Renouveler le jeton d’accès",
+    "/api/v1/user/ranking": {
+      "get": {
+        "summary": "Consulter le classement des utilisateurs",
         "tags": [
-          "Auth"
+          "Utilisateurs"
         ],
         "security": [
           {
-            "refreshCookieAuth": []
+            "cookieAuth": []
           }
         ],
         "responses": {
           "200": {
-            "description": "Jeton renouvelé pour 15 minutes via le cookie tokenAccess.",
+            "description": "Classement par points de victoire croissants.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2397,63 +2463,40 @@
                     },
                     "detail": {
                       "type": "string"
+                    },
+                    "ranking": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "firstname": {
+                            "type": "string"
+                          },
+                          "lastname": {
+                            "type": "string"
+                          },
+                          "pseudo": {
+                            "type": "string"
+                          },
+                          "victorypts": {
+                            "type": "integer"
+                          }
+                        }
+                      }
                     }
                   }
                 }
               }
             }
           },
-          "400": {
-            "description": "Jeton de renouvellement invalide ou expiré.",
+          "401": {
+            "description": "Cookie token absent, invalide, expiré ou utilisateur inexistant.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
                   "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        400
-                      ]
-                    },
-                    "detail": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Cookie tokenRefresh absent.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "title",
-                    "status",
-                    "detail"
-                  ],
-                  "properties": {
-                    "title": {
-                      "type": "string"
-                    },
-                    "status": {
-                      "type": "integer",
-                      "enum": [
-                        404
-                      ]
-                    },
-                    "detail": {
+                    "message": {
                       "type": "string"
                     }
                   }
