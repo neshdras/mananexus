@@ -8,10 +8,12 @@ export function NavBar(){
     const navigate = useNavigate()
     const [isLoggingOut, setIsLoggingOut] = useState(false)
     const [logoutError, setLogoutError] = useState('')
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
 
     const handleLogout = async () => {
         setIsLoggingOut(true)
         setLogoutError('')
+        setIsMenuOpen(false)
 
         try {
             await apiService.auth.logout()
@@ -27,11 +29,26 @@ export function NavBar(){
     return(
         <header className="nav-bar">
             <Link className="nav-bar__brand" to="/"><img src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
-            <nav className="nav-bar__nav">
+            <button
+                className="nav-bar__toggle"
+                type="button"
+                aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="nav-bar-menu"
+                onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
+            >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M3 6h18M3 12h18M3 18h18" />
+                </svg>
+            </button>
+            <nav
+                className={`nav-bar__nav${isMenuOpen ? ' nav-bar__nav--open' : ''}`}
+                id="nav-bar-menu"
+            >
                 <ul className="nav-bar__links">
-                    <li><Link to='/'>Acceuil</Link></li>
-                    <li><Link to='/tournament'>Tournoi</Link></li>
-                    <li><Link to='/profile'>Profil</Link></li>
+                    <li><Link to='/' onClick={() => setIsMenuOpen(false)}>Acceuil</Link></li>
+                    <li><Link to='/tournament' onClick={() => setIsMenuOpen(false)}>Tournoi</Link></li>
+                    <li><Link to='/profile' onClick={() => setIsMenuOpen(false)}>Profil</Link></li>
                     {user && (
                         <li>
                             <button
