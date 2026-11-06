@@ -25,10 +25,10 @@ export function NavBar(){
     }
 
     return(
-        <header>
-            <Link to="/"><img src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
-            <nav>
-                <ul>
+        <header className="nav-bar">
+            <Link className="nav-bar__brand" to="/"><img src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
+            <nav className="nav-bar__nav">
+                <ul className="nav-bar__links">
                     <li><Link to='/'>Acceuil</Link></li>
                     <li><Link to='/tournament'>Tournoi</Link></li>
                     <li><Link to='/profile'>Profil</Link></li>

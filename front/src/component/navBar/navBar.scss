@@ -1,45 +1,94 @@
 @use '../../styles/base/variable' as *;
-header{
+
+.nav-bar {
+    width: min(calc(100% - 2rem), 1440px);
+    margin-inline: auto;
     display: flex;
     align-items: center;
-    max-width: 1440px;
-    margin: auto;
-    justify-content: space-between;
-    img{
-        max-width: 100px;
-    }
-    ul{
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: clamp(1rem, 4vw, 3rem);
+    padding-block: 1rem;
+
+    &__brand {
         display: flex;
-        gap: 20px;
+        align-items: center;
+        flex: 0 0 auto;
+
+        img {
+            display: block;
+            width: 100px;
+            max-width: 100%;
+        }
+    }
+
+    &__nav {
+        display: flex;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    &__links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: clamp(0.75rem, 2.5vw, 1.5rem);
+        margin: 0;
+        padding: 0;
         list-style: none;
-        a{
+
+        a {
             color: $white;
             text-decoration: none;
             font-family: $sec-font;
         }
     }
-}
 
-.logout-button{
-    border: 1px solid $primary-color;
-    border-radius: 999px;
-    padding: 8px 14px;
-    background: transparent;
-    color: $white;
-    font: inherit;
-    cursor: pointer;
+    .logout-button {
+        border: 1px solid $primary-color;
+        border-radius: 999px;
+        padding: 8px 14px;
+        background: transparent;
+        color: $white;
+        font: inherit;
+        cursor: pointer;
 
-    &:hover:not(:disabled){
-        background: $opacolor-15;
+        &:hover:not(:disabled) {
+            background: $opacolor-15;
+        }
+
+        &:disabled {
+            cursor: wait;
+            opacity: 0.7;
+        }
     }
 
-    &:disabled{
-        cursor: wait;
-        opacity: 0.7;
+    .logout-error {
+        flex: 0 0 100%;
+        margin: 0;
+        color: $primary-color;
+        font-size: 0.875rem;
+        text-align: center;
     }
 }
 
-.logout-error{
-    color: $primary-color;
-    font-size: 0.875rem;
+@media (max-width: 600px) {
+    .nav-bar {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding-block: 0.75rem;
+
+        &__brand img {
+            width: 80px;
+        }
+
+        &__nav {
+            width: 100%;
+        }
+
+        &__links {
+            row-gap: 0.65rem;
+        }
+    }
 }
