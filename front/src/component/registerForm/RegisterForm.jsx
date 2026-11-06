@@ -32,11 +32,13 @@ function FormRegister() {
     if(!regexMail.test(dataForm.email)) 
       return setInfo('Veuillez renseigner une adresse mail valide.')
     
-    const res = await loadFetch(query, dataForm)
-    
-    if(res?.token){
-        setUser(res.user) 
-        navigate('/profile', {replace: true})
+    try {
+      const res = await loadFetch(query, dataForm)
+      if (!res?.user) return
+      setUser(res.user)
+      navigate('/profile', {replace: true})
+    } catch {
+      // useController exposes request errors in the form.
     }
   }
   

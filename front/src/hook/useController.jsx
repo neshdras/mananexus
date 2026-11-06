@@ -17,8 +17,14 @@ function useController() {
 
             return await request(info, controller.signal)
         } catch (err) {
+            const wasCancelled = err.name === 'AbortError'
+                || controller.signal.aborted
+                || controller !== controllerRef.current
+
+            if (wasCancelled) return undefined
+
             console.error("USE CONTROLLER - erreur:", err)
-            if(err.name !== 'AbortError' && !controller.signal.aborted && controller === controllerRef.current)
+            if (controller === controllerRef.current)
                 setErrorMessage(`Loading error: ${err.message}`)
             throw err
         } finally{

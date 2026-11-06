@@ -20,9 +20,14 @@ function Login() {
         if(!regexPassword.test(info.password))
           return setMessage("Le mot de passe doit contenir minimum 8 caractères, une minuscule, une majuscule, une chiffre et un symbole.")
 
-          const res = await loadFetch(query, info)
-          setUser(res.user)
-          navigate('/profile', {replace: true})
+          try {
+            const res = await loadFetch(query, info)
+            if (!res?.user) return
+            setUser(res.user)
+            navigate('/profile', {replace: true})
+          } catch {
+            // useController exposes request errors in the form.
+          }
         
     }
     //Erreur lors du chargement, veuillez réessayer plus tard

@@ -36,11 +36,12 @@ export default function ModalTournament({ onClose, onTournamentCreated }) {
     async function handleSubmit(event) {
         event.preventDefault()
         try {
-            await loadFetch(apiService.tournament.create, {
+            const tournament = await loadFetch(apiService.tournament.create, {
                 ...form,
                 date: new Date(form.date).toISOString(),
                 paf: Number(form.paf),
             })
+            if (!tournament) return
             onTournamentCreated()
             onClose()
         } catch {

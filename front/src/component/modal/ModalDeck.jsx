@@ -45,6 +45,7 @@ export default function ModalDeck({ onClose, onDeckAdded }) {
                 ...form,
                 gameId: Number(form.gameId),
             })
+            if (!deck) return
             onDeckAdded(deck)
             onClose()
         } catch {

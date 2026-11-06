@@ -39,7 +39,8 @@ export default function UpdateProfile({ onClose, onProfileUpdated }) {
         if (form.password) payload.password = form.password
 
         try {
-            await loadFetch(apiService.user.update, payload)
+            const result = await loadFetch(apiService.user.update, payload)
+            if (!result) return
             const updatedUser = {
                 ...user,
                 firstname_user: payload.firstname.trim(),
