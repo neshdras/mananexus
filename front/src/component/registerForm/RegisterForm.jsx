@@ -5,6 +5,7 @@ import './registerForm.scss'
 import {useNavigate} from 'react-router-dom'
 import useStoreUser from "../../hook/storeUser"
 import { LogoLoader } from '../logoLoader/LogoLoader'
+
 function FormRegister() {
   const query = apiService.auth.register
   const { loading, errorMessage, loadFetch} = useController()
@@ -32,6 +33,9 @@ function FormRegister() {
     if(!regexMail.test(dataForm.email)) 
       return setInfo('Veuillez renseigner une adresse mail valide.')
     
+    if(isAgree === false)
+      return setInfo('Veuillez accepter les conditions')
+
     try {
       const res = await loadFetch(query, dataForm)
       if (!res?.user) return
@@ -50,15 +54,15 @@ function FormRegister() {
     <form onSubmit={handleSubmit}>
       <p className="info">{info}</p>
       <label htmlFor="firstname">Prénom: </label>
-      <input type="text" name="firstname" id="firstname" placeholder="Votre prénom" autoComplete='firstname' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
+      <input type="text" name="firstname" id="firstname" placeholder="Votre prénom" autoComplete='given-name' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
       <label htmlFor="lastname">Nom de famille: </label>
-      <input type="text" name="lastname" id="lastname" placeholder="Votre nom"  autoComplete='lastname' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, lastname: e.target.value}))}/>
+      <input type="text" name="lastname" id="lastname" placeholder="Votre nom"  autoComplete='family-name' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, lastname: e.target.value}))}/>
       <label htmlFor="email">Email: </label>
       <input type="email" name="email" id="email" placeholder="prenom.nom@exemple.fr" autoComplete='email' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, email: e.target.value}))}/>
       <label htmlFor="pseudo">Pseudo: (optionnel)</label>
       <input type="text" name="pseudo" id="pseudo" placeholder="Votre pseudo" autoComplete='username' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
       <label htmlFor="pass">Password</label>
-      <input type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+      <input type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='new-password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
       <label htmlFor="pass-confirm">Confirmation Password</label>
       <input type="password" name="pass-confirm" id="pass-confirm" disabled={loading} onChange={(e) => {
         setPasswordConfirm(e.target.value)
