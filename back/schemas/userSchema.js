@@ -9,14 +9,14 @@ const userSchema = z.strictObject({
         .trim(),
     lastname: z.string()
         .min(2, {error: "Le nom doit avoir au moins 2 caractères"})
-        .max(50, {error: "Le nom doit avoir au moins 2 caractères"})
+        .max(50, {error: "Le nom doit avoir max 50 caractères"})
         .trim(),
     email: z.email({error: "Adresse email invalide"})
         .trim()
         .toLowerCase(),
     pseudo: z.string()
         .min(3, {error: "Le pseudo doit avoir au moins 2 caractères"})
-        .max(50, {error: "Le pseudo doit avoir au moins 2 caractères"})
+        .max(50, {error: "Le pseudo doit avoir max 50 caractères"})
         .trim(),
     password: z.string()
         .min(6, {error: "Le mot de passe doit avoir au moins 6 caractères"})

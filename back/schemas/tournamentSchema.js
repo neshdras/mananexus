@@ -14,7 +14,7 @@ date: z.iso.datetime({
 }).refine(
     (date) => new Date(date) > new Date(),
     {
-        message: "The dat emust be in the future"
+        message: "The date must be in the future"
     }
 ),
 price: z.string()

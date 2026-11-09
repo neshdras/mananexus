@@ -1,7 +1,7 @@
 'use strict'
 
 const {z} = require('zod')
-const domainesAutorises = ['moxfield.com', 'piltoverarchive.com', 'riftdecks.com']
+const domainesAutorises = ['moxfield.com', 'piltoverarchive.com', 'riftdecks.com', 'inkdecks.com', '']
 const deckUrlSchema = z.string()
     .trim()
     .url()
