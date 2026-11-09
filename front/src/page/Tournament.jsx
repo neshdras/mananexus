@@ -6,6 +6,8 @@ import '../styles/page/Tournament.scss'
 import {NavBar} from '../component/navBar/NavBar'
 import {Footer} from '../component/footer/Footer'
 import ModalTournament from '../component/modal/ModalTournament'
+import useAuth from '../hook/useAuth'
+import { LogoLoader } from "../component/logoLoader/LogoLoader"
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -24,9 +26,15 @@ function formatDate(value) {
 
 export function Tournament(){
     const { loading, errorMessage, loadFetch } = useController()
+    const { user } = useAuth()
     const [tournaments, setTournaments] = useState(null)
     const [attempt, setAttempt] = useState(0)
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
+    const [tournamentToEdit, setTournamentToEdit] = useState(null)
+
+    useEffect(()=>{
+        document.title = 'Nexus Shuffle | Profil'
+    }, [])
 
     useEffect(() => {
         let active = true
@@ -55,7 +63,7 @@ export function Tournament(){
                     <span aria-hidden="true">+</span> Ajouter un tournoi
                 </button>
             </div>
-            {loading && <p role="status">Chargement des tournois…</p>}
+            {loading && <LogoLoader/>}
             {errorMessage && (
                 <div>
                     <p role="alert">{errorMessage}</p>
@@ -78,6 +86,8 @@ export function Tournament(){
                             ? 'Participation à confirmer'
                             : moneyFormatter.format(tournament.ctc_tournament)}
                         location={tournament.location_tournament}
+                        canEdit={Boolean(user && String(user.id_user) === String(tournament.fk_id_user))}
+                        onEdit={() => setTournamentToEdit(tournament)}
                     />
                 ))}
             </div>
@@ -86,6 +96,13 @@ export function Tournament(){
             <ModalTournament
                 onClose={() => setCreateModalOpen(false)}
                 onTournamentCreated={() => setAttempt((value) => value + 1)}
+            />
+        )}
+        {tournamentToEdit && (
+            <ModalTournament
+                tournament={tournamentToEdit}
+                onClose={() => setTournamentToEdit(null)}
+                onTournamentUpdated={() => setAttempt((value) => value + 1)}
             />
         )}
         <Footer/>

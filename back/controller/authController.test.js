@@ -10,7 +10,7 @@ const db = require('../config/database')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const mailSender = require('../tools/mailSender')
-const { register, login, sendToken, forgetPass, refreshAuth } = require('./authController')
+const { register, login, sendToken, forgetPass, refreshAuth, logout } = require('./authController')
 
 describe('Auth Controller', () => {
     let req, res, user
@@ -22,7 +22,7 @@ describe('Auth Controller', () => {
             params: { token: 'reset-token' },
             cookies: { tokenRefresh: 'refresh-token' }
         }
-        res = { status: jest.fn().mockReturnThis(), json: jest.fn(), cookie: jest.fn().mockReturnThis() }
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn(), cookie: jest.fn().mockReturnThis(), clearCookie: jest.fn().mockReturnThis() }
         bcrypt.hash.mockResolvedValue('hashed-password')
         jwt.verify.mockReturnValue({ id: 1 })
     })
@@ -214,6 +214,30 @@ describe('Auth Controller', () => {
             expect(res.status).toHaveBeenCalledWith(400)
             expect(res.json).toHaveBeenCalledWith({ title: 'Bad request', status: 400, detail: message })
             expect(res.cookie).not.toHaveBeenCalled()
+        })
+    })
+
+    describe('logout', () => {
+        it('should clear both authentication cookies and return success', () => {
+            logout(req, res)
+
+            expect(res.clearCookie).toHaveBeenNthCalledWith(1, 'tokenAccess', { path: '/' })
+            expect(res.clearCookie).toHaveBeenNthCalledWith(2, 'tokenRefresh', { path: '/' })
+            expect(res.status).toHaveBeenCalledWith(200)
+            expect(res.json).toHaveBeenCalledWith({
+                title: 'Success',
+                status: 200,
+                detail: 'Logout successfully'
+            })
+        })
+
+        it('should succeed even when no session cookies are present', () => {
+            req.cookies = {}
+
+            logout(req, res)
+
+            expect(res.clearCookie).toHaveBeenCalledTimes(2)
+            expect(res.status).toHaveBeenCalledWith(200)
         })
     })
 })

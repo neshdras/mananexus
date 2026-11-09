@@ -226,7 +226,7 @@ export const apiService = {
         },
         async update(info, signal){
             const { name, format, date, price, paf, location, id} = info
-            const req = await apiRequest(`/tournament/create/${id}`,{
+            const req = await apiRequest(`/tournament/update/${id}`,{
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -234,10 +234,13 @@ export const apiService = {
                 body:JSON.stringify({name, format, date, price, paf, location}),
                 signal
             })
-            if(!req.info)
-                throw new Error(`Error HTTP: ${req.status}`);
-            
-            return req.json()
+            const data = await req.json().catch(() => ({}))
+            if(!req.ok) {
+                const detail = data.invalidParams?.[0]?.message ?? data.detail
+                throw new Error(detail || `Error HTTP: ${req.status}`)
+            }
+
+            return data
         },
         async addPlayer(info, signal){
             const req = await apiRequest(`/tournament/join/${info}`,{

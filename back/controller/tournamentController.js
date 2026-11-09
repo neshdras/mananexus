@@ -64,6 +64,13 @@ exports.updateTournament = async (req, res) => {
             detail: "Tournament not found"
         })
 
+    if(String(tournament.fk_id_user) !== String(req.user.id_user))
+        return res.status(403).json({
+            title: 'Forbidden',
+            status: 403,
+            detail: "Only the tournament creator can update this tournament"
+        })
+
     const uniquenessFieldsChanged = format !== undefined || date !== undefined || location !== undefined
     if(uniquenessFieldsChanged){
         const nextFormat = format !== undefined ? format : tournament.format_tournament

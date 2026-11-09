@@ -25,7 +25,9 @@ export function Profile() {
     const isOwnProfile = Boolean(
         connectedUser && String(profileId) === String(connectedUser.id_user)
     )
-
+    useEffect(()=>{
+        document.title = 'Nexus Shuffle | Profil'
+    }, [])
     useEffect(() => {
         if (!profileId) return
 

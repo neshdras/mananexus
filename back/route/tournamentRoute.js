@@ -295,6 +295,25 @@ router.post('/create',authMiddleware, validate(createTournamentSchema), createTo
  *               properties:
  *                 message:
  *                   type: string
+ *       '403':
+ *         description: Seul le créateur du tournoi peut le modifier.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - title
+ *                 - status
+ *                 - detail
+ *               properties:
+ *                 title:
+ *                   type: string
+ *                 status:
+ *                   type: integer
+ *                   enum:
+ *                     - 403
+ *                 detail:
+ *                   type: string
  *       '404':
  *         description: Tournoi introuvable.
  *         content:

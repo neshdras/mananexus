@@ -12,7 +12,7 @@ describe('Tournament Controller', () => {
             body: { name: 'Tournoi du samedi', format: 'Commander', date: '2030-11-15T14:00:00Z', price: 'Deux boosters', paf: 5, location: 'Paris' }
         }
         res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
-        tournament = { id_tournament: 7, name_tournament: 'Ancien nom', format_tournament: 'Commander', date_tournament: '2030-11-15T14:00:00Z', price_tournament: 'Deux boosters', ctc_tournament: 5, location_tournament: 'Paris', description_tournament: 'Description conservée' }
+        tournament = { id_tournament: 7, fk_id_user: 1, name_tournament: 'Ancien nom', format_tournament: 'Commander', date_tournament: '2030-11-15T14:00:00Z', price_tournament: 'Deux boosters', ctc_tournament: 5, location_tournament: 'Paris', description_tournament: 'Description conservée' }
     })
     afterEach(() => { jest.useRealTimers() })
 
@@ -69,6 +69,19 @@ describe('Tournament Controller', () => {
             await updateTournament(req, res)
             expect(res.status).toHaveBeenCalledWith(404)
             expect(res.json).toHaveBeenCalledWith({ title: 'Not found', status: 404, detail: 'Tournament not found' })
+            expect(db.query).toHaveBeenCalledTimes(1)
+        })
+        it('should return 403 when the connected user is not the creator', async () => {
+            db.query.mockResolvedValueOnce({ rows: [{ ...tournament, fk_id_user: 2 }] })
+
+            await updateTournament(req, res)
+
+            expect(res.status).toHaveBeenCalledWith(403)
+            expect(res.json).toHaveBeenCalledWith({
+                title: 'Forbidden',
+                status: 403,
+                detail: 'Only the tournament creator can update this tournament'
+            })
             expect(db.query).toHaveBeenCalledTimes(1)
         })
         it('should update all supplied fields', async () => {

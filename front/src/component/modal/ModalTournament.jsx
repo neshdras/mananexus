@@ -9,9 +9,25 @@ const getLocalDateTime = () => {
     return now.toISOString().slice(0, 16)
 }
 
-export default function ModalTournament({ onClose, onTournamentCreated }) {
+const toLocalDateTime = (value) => {
+    if (!value) return ''
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return ''
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+    return date.toISOString().slice(0, 16)
+}
+
+export default function ModalTournament({ onClose, onTournamentCreated, onTournamentUpdated, tournament }) {
     const { loading, errorMessage, loadFetch } = useController()
-    const [form, setForm] = useState({
+    const isEditing = Boolean(tournament)
+    const [form, setForm] = useState(() => tournament ? {
+        name: tournament.name_tournament ?? '',
+        format: tournament.format_tournament ?? '',
+        date: toLocalDateTime(tournament.date_tournament),
+        price: tournament.price_tournament ?? '',
+        paf: tournament.ctc_tournament == null ? '' : String(tournament.ctc_tournament),
+        location: tournament.location_tournament ?? '',
+    } : {
         name: '',
         format: '',
         date: '',
@@ -36,13 +52,18 @@ export default function ModalTournament({ onClose, onTournamentCreated }) {
     async function handleSubmit(event) {
         event.preventDefault()
         try {
-            const tournament = await loadFetch(apiService.tournament.create, {
+            const request = isEditing
+                ? apiService.tournament.update
+                : apiService.tournament.create
+            const result = await loadFetch(request, {
                 ...form,
                 date: new Date(form.date).toISOString(),
                 paf: Number(form.paf),
+                ...(isEditing && { id: tournament.id_tournament }),
             })
-            if (!tournament) return
-            onTournamentCreated()
+            if (!result) return
+            if (isEditing) onTournamentUpdated()
+            else onTournamentCreated()
             onClose()
         } catch {
             // useController expose le message d’erreur à afficher.
@@ -64,8 +85,8 @@ export default function ModalTournament({ onClose, onTournamentCreated }) {
             >
                 <div className="modal-deck__heading">
                     <div>
-                        <p className="modal-deck__eyebrow">Nouvel événement</p>
-                        <h2 id="modal-tournament-title">Créer un tournoi</h2>
+                        <p className="modal-deck__eyebrow">{isEditing ? 'Modifier l’événement' : 'Nouvel événement'}</p>
+                        <h2 id="modal-tournament-title">{isEditing ? 'Modifier le tournoi' : 'Créer un tournoi'}</h2>
                     </div>
                     <button
                         className="modal-deck__close"
@@ -156,7 +177,9 @@ export default function ModalTournament({ onClose, onTournamentCreated }) {
                             Annuler
                         </button>
                         <button type="submit" className="modal-deck__submit" disabled={loading}>
-                            {loading ? 'Création en cours…' : 'Créer le tournoi'}
+                            {loading
+                                ? (isEditing ? 'Modification en cours…' : 'Création en cours…')
+                                : (isEditing ? 'Enregistrer les modifications' : 'Créer le tournoi')}
                         </button>
                     </div>
                 </form>

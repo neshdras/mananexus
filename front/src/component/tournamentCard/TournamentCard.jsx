@@ -1,9 +1,21 @@
 import './tournamentCard.scss'
 
-export function TournamentCard({id, title, format, date, price, paf, location}){
+export function TournamentCard({id, title, format, date, price, paf, location, canEdit = false, onEdit}){
     return(
         <article className="card-tournament" data-id={id}>
-            <h2>{title}</h2>
+            <div className="card-tournament__heading">
+                <h2>{title}</h2>
+                {canEdit && (
+                    <button
+                        className="card-tournament__edit"
+                        type="button"
+                        aria-label={`Modifier le tournoi ${title}`}
+                        onClick={onEdit}
+                    >
+                        Modifier
+                    </button>
+                )}
+            </div>
             <p>{location}</p>
             <div className="info">
                 <p>

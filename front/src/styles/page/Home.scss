@@ -23,7 +23,7 @@
             margin: 12px 0;
             font-size: 16px;
             line-height: 26px;
-            color: $gray-logo;
+            color: $ligth-gray;
             &:last-child{
                 margin-top: 24px;
                 color: $primary-color;
@@ -50,7 +50,7 @@
                 padding: 24px;
                 border: 1px solid $opacolor-15;
                 border-radius: 20px;
-                background-color: $black;
+                background: $background;
                 font-family: $primary-font;
                 h3{
                     font-family: $sec-font;
