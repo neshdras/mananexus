@@ -43,29 +43,19 @@ export function NavBar(){
                     <path d="M3 6h18M3 12h18M3 18h18" />
                 </svg>
             </button>
-            <nav
-                className={`nav-bar__nav${isMenuOpen ? ' nav-bar__nav--open' : ''}`}
-                id="nav-bar-menu"
-            >
+            <nav className={`nav-bar__nav${isMenuOpen ? ' nav-bar__nav--open' : ''}`} id="nav-bar-menu">
                 <ul className="nav-bar__links">
-                    {/* <li><Link to='/' onClick={() => setIsMenuOpen(false)}>Acceuil</Link></li> */}
                     <li><Link to='/tournament' onClick={() => setIsMenuOpen(false)}>Tournoi</Link></li>
                     <li><Link to='/profile' onClick={() => setIsMenuOpen(false)}>Profil</Link></li>
-                    
-                        <li>
-                            <button
-                                className="logout-button"
-                                type="button"
-                                onClick={handleLogout}
-                                disabled={isLoggingOut}
-                            >
-                                {isLoggingOut ? 'Déconnexion…' : 'Déconnexion'}
-                            </button>
-                        </li>
+                    <li>
+                        <button className="logout-button" type="button" onClick={handleLogout} disabled={isLoggingOut}>
+                            {isLoggingOut ? 'Déconnexion…' : 'Déconnexion'}
+                        </button>
+                    </li>
                     
                 </ul>
             </nav>
-            logoutError && <p className="logout-error" role="alert">{logoutError}</p>
+            {logoutError && <p className="logout-error" role="alert">{logoutError}</p>}
         
         </header>
     )
