@@ -2,6 +2,18 @@
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1'
 
+const getResponseErrorMessage = async (response) => {
+    const data = await response.json().catch(() => ({}))
+    const validationMessages = Array.isArray(data.invalidParams)
+        ? data.invalidParams.map(param => param.message)
+        .filter(Boolean)
+        : []
+
+    return data.detail
+        || (validationMessages.length ? validationMessages.join(' ') : null)
+        || `Erreur HTTP : ${response.status}`
+}
+
 const apiRequest = async (url, options = {}, retry = false)=>{
     const req = await fetch(`${BASE_URL}${url}`, {
         ...options,
@@ -51,7 +63,7 @@ export const apiService = {
             })
     
             if(!req.ok)
-                throw new Error(`Error HTTP: ${req.status}`)
+                throw new Error(await getResponseErrorMessage(req))
             
             return await req.json()
         },
@@ -67,7 +79,7 @@ export const apiService = {
                     signal
             })
             if(!req.ok)
-                throw new Error(`Error HTTP: ${req.status}`)
+                throw new Error(await getResponseErrorMessage(req))
             
             return await req.json()
 

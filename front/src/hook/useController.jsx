@@ -25,8 +25,8 @@ function useController() {
 
             console.error("USE CONTROLLER - erreur:", err)
             if (controller === controllerRef.current)
-                setErrorMessage(`Loading error: ${err.message}`)
-            throw err
+                setErrorMessage(err.message || "Une erreur est survenue. Veuillez réessayer.")
+            
         } finally{
             if(!controller.signal.aborted && controller === controllerRef.current)
                 setLoading(false)

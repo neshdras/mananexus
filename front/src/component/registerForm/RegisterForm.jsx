@@ -20,9 +20,14 @@ function FormRegister() {
 
   async function handleSubmit(e){
     e.preventDefault()
-    if(dataForm.lastname.length <2 || dataForm.firstname.length < 2 || dataForm.email.length <2) 
-      return setInfo('Veuillez renseigner tous les champs demandés.')
+    setInfo("")
+    if(dataForm.lastname.length <2) 
+      return setInfo('Veuillez renseigner un nom valide')
+    if(dataForm.firstname.length < 2 )
+      return setInfo('Veuillez renseigner un prénom valide')
     
+    if(dataForm.email.length <2)
+      return setInfo('Veuillez renseigner un email valide')
     
     if(!regexPassword.test(dataForm.password)) 
       return setInfo(`Le mot de passe doit contenir minimum 8 caractères, une minuscule, une majuscule, une chiffre et un symbole.`)
@@ -50,7 +55,7 @@ function FormRegister() {
     <section id="registerForm">
 
     {loading? <LogoLoader/> : ""}
-    <p className='err'>{errorMessage? "Erreur lors du chargement, veuillez réessayer plus tard" : ""}</p>
+    {errorMessage && <p className='err' role='alert'>{errorMessage}</p>}
     <form onSubmit={handleSubmit}>
       <p className="info">{info}</p>
       <label htmlFor="firstname">Prénom: </label>

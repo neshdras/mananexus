@@ -1,12 +1,17 @@
 import { Footer } from "../component/footer/Footer";
+import { useEffect } from "react";
 import { NavBar } from "../component/navBar/NavBar";
+import '../styles/page/LegalMention.scss'
 
 export function LegalNotice() {
+    useEffect(()=>{
+        document.title = "Nexus Shuffle | Mentions Légales"
+    })
     return(
         <>
-            <NavBar/>
-            <main>
-                <h1>Mention Légales</h1>
+        <NavBar/>
+            <main id="legal-notice">
+                <h1>Mentions Légales</h1>
                 <section>
                     <article>
                         <h2>Propriétaire du site</h2>

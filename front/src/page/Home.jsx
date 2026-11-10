@@ -1,10 +1,11 @@
 import { Form} from './Form'
 import '../styles/page/Home.scss'
 import { Footer } from "../component/footer/Footer"
+import { NavBar } from '../component/navBar/NavBar'
 export function Home(){
     return(
         <>
-
+        <NavBar/>
         <main id="home">
             <section>
                 <h1>Bienvenue sur <span>Nexus Shuffle</span></h1>

@@ -1,5 +1,8 @@
+@use '../base/variable' as *;
+
 .tournament-page {
     max-width: 1200px;
+    width: 100%;
     margin: 0 auto;
     padding: 24px;
 
@@ -20,12 +23,12 @@
             justify-content: center;
             gap: 9px;
             padding: 10px 16px;
-            border: 1px solid #D27271;
+            border: 1px solid $primary-color;
             border-radius: 10px;
-            background: #D27271;
+            background: $primary-color;
             color: #F8F8F9;
             cursor: pointer;
-            font: inherit;
+            font-family: $primary-font;
             font-weight: 700;
             white-space: nowrap;
 

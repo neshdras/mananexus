@@ -26,9 +26,11 @@ export function NavBar(){
         }
     }
 
-    return(
+    if (user) 
+        return(
         <header className="nav-bar">
-            <Link className="nav-bar__brand" to="/"><img src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
+            <img src="/logo.svg" alt="logo Nexus Shuffle" />
+           
             <button
                 className="nav-bar__toggle"
                 type="button"
@@ -46,10 +48,10 @@ export function NavBar(){
                 id="nav-bar-menu"
             >
                 <ul className="nav-bar__links">
-                    <li><Link to='/' onClick={() => setIsMenuOpen(false)}>Acceuil</Link></li>
+                    {/* <li><Link to='/' onClick={() => setIsMenuOpen(false)}>Acceuil</Link></li> */}
                     <li><Link to='/tournament' onClick={() => setIsMenuOpen(false)}>Tournoi</Link></li>
                     <li><Link to='/profile' onClick={() => setIsMenuOpen(false)}>Profil</Link></li>
-                    {user && (
+                    
                         <li>
                             <button
                                 className="logout-button"
@@ -60,10 +62,16 @@ export function NavBar(){
                                 {isLoggingOut ? 'Déconnexion…' : 'Déconnexion'}
                             </button>
                         </li>
-                    )}
+                    
                 </ul>
             </nav>
-            {logoutError && <p className="logout-error" role="alert">{logoutError}</p>}
+            logoutError && <p className="logout-error" role="alert">{logoutError}</p>
+        
+        </header>
+    )
+    return(
+        <header>
+            <Link className="nav-bar__brand" to="/"><img src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
         </header>
     )
 }
