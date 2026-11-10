@@ -1,3 +1,4 @@
+const { getDeckByID } = require("../model/deckModel")
 const { getAll, insertTournament, duplicateTournament, getTournamentById, updateTournament, verifyRegister, addPlayerToTournament, getTournamentByIdAndDate, deleteRegister, seePlayerRegister } = require("../model/tournamentModel")
 const {findUserById} = require('../model/userModel')
 
@@ -23,7 +24,7 @@ exports.seeAll = async (req, res)=>{
 
 exports.createTournament = async (req, res) => {
     try {
-        const { name, format, date, price, paf, location} = req.body
+        const { name, format, date, price, paf, location, gameId} = req.body
         const organizer = req.user.id_user
 
         const existingTournament = await duplicateTournament(format, date, organizer, location)
@@ -34,7 +35,7 @@ exports.createTournament = async (req, res) => {
                 detail: 'Tournament already exist'
             })
 
-        const insertValue = [name, format, date, organizer, price, paf, location, null]
+        const insertValue = [name, format, date, organizer, price, paf, location, null, gameId]
         const tournamentInfo = await insertTournament(insertValue)
         res.status(201).json({
             title: 'Created',
@@ -128,7 +129,7 @@ exports.updateTournament = async (req, res) => {
 exports.addPlayer = async (req, res) => {
     const idTournament = req.params.id
     const idUser = req.user.id_user
-
+    const idDeck = req.body.idDeck
     const date = new Date().toISOString()
     const today = date.split("T")[0]
 
@@ -148,7 +149,29 @@ exports.addPlayer = async (req, res) => {
             status: 404,
             detail: "User not found"
         })
+    
+    const deckQuery = await getDeckByID(idDeck)
+    if(!deckQuery)
+        return res.status(404).json({
+            title: 'Not Found',
+            status: 404,
+            detail: "Decklist not found"
+        })
 
+    if(String(deckQuery.fk_id_user) !== String(idUser))
+        return res.status(403).json({
+            title: 'Forbidden',
+            status: 403,
+            detail: 'You can only register with your own decklist'
+        })
+
+    if(String(deckQuery.fk_id_game) !== String(queryTime.fk_id_game))
+        return res.status(400).json({
+            title: 'Bad request',
+            status: 400,
+            detail: 'Decklist game does not match tournament game'
+        })
+        
     const isRegister = await verifyRegister(idTournament, idUser) == 1
     if(isRegister)
         return res.status(409).json({
@@ -157,7 +180,7 @@ exports.addPlayer = async (req, res) => {
             detail: "User already register"
         })
 
-    await addPlayerToTournament(idTournament, idUser)
+    await addPlayerToTournament(idTournament, idUser, idDeck)
     res.status(200).json({
         title: 'Registration completed',
         status: 200,

@@ -4,14 +4,14 @@
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
-    padding: 24px;
+    padding: 24px 0;
 
     &__heading {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 20px;
-
+        padding: 0 15px;
         h1 {
             margin: 0;
         }
@@ -25,8 +25,8 @@
             padding: 10px 16px;
             border: 1px solid $primary-color;
             border-radius: 10px;
-            background: $primary-color;
-            color: #F8F8F9;
+            background: $opacolor-30;
+            color: $white;
             cursor: pointer;
             font-family: $primary-font;
             font-weight: 700;
@@ -50,6 +50,7 @@
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
         gap: 24px;
         margin-top: 24px;
+        padding: 0 15px;
     }
 }
 

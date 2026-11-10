@@ -186,7 +186,7 @@
         cursor: pointer;
         font: inherit;
         font-weight: 700;
-
+        color: var.$black;
         &:disabled {
             cursor: wait;
             opacity: 0.65;
@@ -201,7 +201,7 @@
 
     &__submit {
         border: 1px solid var.$primary-color;
-        background: var.$primary-color;
+        background: var.$opacolor-30;
         color: var.$white;
     }
 }

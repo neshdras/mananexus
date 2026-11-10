@@ -33,7 +33,7 @@ exports.duplicateTournament = async(format, date, organiser, location) => {
 
 exports.insertTournament = async(value) => {
     const { rows } = await db.query(
-        'INSERT INTO tournaments(name_tournament, format_tournament, date_tournament, fk_id_user, price_tournament, ctc_tournament, location_tournament, description_tournament) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING name_tournament AS name, format_tournament AS format, date_tournament, price_tournament AS price, ctc_tournament AS ctc, location_tournament AS location, description_tournament AS description',
+        'INSERT INTO tournaments(name_tournament, format_tournament, date_tournament, fk_id_user, price_tournament, ctc_tournament, location_tournament, description_tournament, fk_id_game) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING name_tournament AS name, format_tournament AS format, date_tournament, price_tournament AS price, ctc_tournament AS ctc, location_tournament AS location, description_tournament AS description, fk_id_game',
         value
     )
     return rows[0]
@@ -47,10 +47,10 @@ exports.updateTournament = async (value) => {
     
 }
 
-exports.addPlayerToTournament = async (tournament, user) =>{
+exports.addPlayerToTournament = async (tournament, user, deck) =>{
     await db.query(
-        'INSERT INTO tournaments_has_players VALUES ($1, $2)',
-        [tournament, user]
+        'INSERT INTO tournaments_has_players VALUES ($1, $2, $3)',
+        [tournament, user, deck]
     )
 }
 

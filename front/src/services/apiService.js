@@ -1,6 +1,6 @@
 
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1'
+// import.meta.env.VITE_API_BASE_URL || 
+const BASE_URL = 'http://localhost:3000/api/v1'
 
 const getResponseErrorMessage = async (response) => {
     const data = await response.json().catch(() => ({}))
@@ -219,13 +219,13 @@ export const apiService = {
             return data
         },
         async create(info, signal){
-            const { name, format, date, price, paf, location} = info
+            const { name, format, date, price, paf, location, gameId } = info
             const req = await apiRequest('/tournament/create',{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body:JSON.stringify({name, format, date, price, paf, location}),
+                body:JSON.stringify({name, format, date, price, paf, location, gameId}),
                 signal
             })
             const data = await req.json().catch(() => ({}))

@@ -88,6 +88,7 @@ router.get('/seeAll', authMiddleware, seeAll )
  *             type: object
  *             additionalProperties: false
  *             required:
+ *               - gameId
  *               - name
  *               - format
  *               - date
@@ -95,6 +96,11 @@ router.get('/seeAll', authMiddleware, seeAll )
  *               - paf
  *               - location
  *             properties:
+ *               gameId:
+ *                 type: integer
+ *                 minimum: 1
+ *                 description: Identifiant du jeu sélectionné.
+ *                 example: 1
  *               name:
  *                 type: string
  *                 minLength: 2

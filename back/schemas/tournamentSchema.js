@@ -2,6 +2,9 @@
 const {z}= require('zod')
 
 const tournamentSchema = z.strictObject({
+gameId: z.number()
+    .int({error: "Veuillez sélectionner un jeu valide"})
+    .positive({error: "Veuillez sélectionner un jeu valide"}),
 name: z.string()
     .min(2, {error: "Le nom doit contenir au moins 2 caractères"})
     .trim(),
@@ -27,6 +30,6 @@ location: z.string()
     .trim(),    
 })
 const createTournamentSchema = tournamentSchema
-const updateTournamentSchema = tournamentSchema.partial()
+const updateTournamentSchema = tournamentSchema.omit({ gameId: true }).partial()
 
 module.exports = {createTournamentSchema, updateTournamentSchema}

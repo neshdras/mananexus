@@ -19,7 +19,13 @@ const toLocalDateTime = (value) => {
 
 export default function ModalTournament({ onClose, onTournamentCreated, onTournamentUpdated, tournament }) {
     const { loading, errorMessage, loadFetch } = useController()
+    const {
+        loading: gamesLoading,
+        errorMessage: gamesError,
+        loadFetch: loadGames,
+    } = useController()
     const isEditing = Boolean(tournament)
+    const [games, setGames] = useState([])
     const [form, setForm] = useState(() => tournament ? {
         name: tournament.name_tournament ?? '',
         format: tournament.format_tournament ?? '',
@@ -28,6 +34,7 @@ export default function ModalTournament({ onClose, onTournamentCreated, onTourna
         paf: tournament.ctc_tournament == null ? '' : String(tournament.ctc_tournament),
         location: tournament.location_tournament ?? '',
     } : {
+        gameId: '',
         name: '',
         format: '',
         date: '',
@@ -35,6 +42,19 @@ export default function ModalTournament({ onClose, onTournamentCreated, onTourna
         paf: '',
         location: '',
     })
+
+    useEffect(() => {
+        if (isEditing) return
+        let active = true
+        loadGames(apiService.game.seeAll)
+            .then((data) => {
+                if (active && data) setGames(data.games)
+            })
+            .catch(() => {
+                // Le message d’erreur est exposé par useController.
+            })
+        return () => { active = false }
+    }, [isEditing, loadGames])
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -59,6 +79,7 @@ export default function ModalTournament({ onClose, onTournamentCreated, onTourna
                 ...form,
                 date: new Date(form.date).toISOString(),
                 paf: Number(form.paf),
+                ...(!isEditing && { gameId: Number(form.gameId) }),
                 ...(isEditing && { id: tournament.id_tournament }),
             })
             if (!result) return
@@ -111,15 +132,39 @@ export default function ModalTournament({ onClose, onTournamentCreated, onTourna
                             required
                         />
                     </label>
+                    {!isEditing && (
+                        <label htmlFor='gameId'>
+                            Jeu
+                            <span className="modal-deck__select-wrap">
+                                <select 
+                                    name="gameId"
+                                    value={form.gameId}
+                                    onChange={updateField}
+                                    disabled={gamesLoading || games.length === 0}
+                                    required
+                                >
+                                    <option value="" disabled>
+                                        {gamesLoading ? 'Chargement des jeux…' : 'Choisis un jeu'}
+                                    </option>
+                                    {games.map((game) => (
+                                        <option key={game.id_game} value={game.id_game}>
+                                            {game.name_game}
+                                        </option>
+                                    ))}
+                                </select>
+                                <span className="modal-deck__select-arrow" aria-hidden="true" />
+                            </span>
+                        </label>
+                    )}
                     <label>
-                        Jeu et format
+                        Format
                         <input
                             name="format"
                             type="text"
                             minLength="2"
                             value={form.format}
                             onChange={updateField}
-                            placeholder="Ex. Magic — Commander"
+                            placeholder="Ex. Commander"
                             required
                         />
                     </label>
@@ -170,6 +215,7 @@ export default function ModalTournament({ onClose, onTournamentCreated, onTourna
                         />
                     </label>
 
+                    {gamesError && <p className="modal-deck__error" role="alert">{gamesError}</p>}
                     {errorMessage && <p className="modal-deck__error" role="alert">{errorMessage}</p>}
 
                     <div className="modal-deck__actions">

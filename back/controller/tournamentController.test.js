@@ -9,10 +9,10 @@ describe('Tournament Controller', () => {
         jest.useFakeTimers().setSystemTime(new Date('2030-11-15T12:00:00Z'))
         req = {
             params: { id: '7' }, user: { id_user: 1 },
-            body: { name: 'Tournoi du samedi', format: 'Commander', date: '2030-11-15T14:00:00Z', price: 'Deux boosters', paf: 5, location: 'Paris' }
+            body: { gameId: 3, idDeck: 9, name: 'Tournoi du samedi', format: 'Commander', date: '2030-11-15T14:00:00Z', price: 'Deux boosters', paf: 5, location: 'Paris' }
         }
         res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
-        tournament = { id_tournament: 7, fk_id_user: 1, name_tournament: 'Ancien nom', format_tournament: 'Commander', date_tournament: '2030-11-15T14:00:00Z', price_tournament: 'Deux boosters', ctc_tournament: 5, location_tournament: 'Paris', description_tournament: 'Description conservée' }
+        tournament = { id_tournament: 7, fk_id_user: 1, fk_id_game: 3, name_tournament: 'Ancien nom', format_tournament: 'Commander', date_tournament: '2030-11-15T14:00:00Z', price_tournament: 'Deux boosters', ctc_tournament: 5, location_tournament: 'Paris', description_tournament: 'Description conservée' }
     })
     afterEach(() => { jest.useRealTimers() })
 
@@ -40,11 +40,11 @@ describe('Tournament Controller', () => {
 
     describe('createTournament', () => {
         it('should create a tournament for the connected organizer', async () => {
-            const tournamentInfo = { name: req.body.name, format: 'Commander', date_tournament: req.body.date, price: 'Deux boosters', ctc: 5, location: 'Paris', description: null }
+            const tournamentInfo = { name: req.body.name, format: 'Commander', date_tournament: req.body.date, price: 'Deux boosters', ctc: 5, location: 'Paris', description: null, fk_id_game: 3 }
             db.query.mockResolvedValueOnce({ rows: [] }).mockResolvedValueOnce({ rows: [tournamentInfo] })
             await createTournament(req, res)
             expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('fk_id_user = $3'), ['Commander', req.body.date, 1, 'Paris'])
-            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('INSERT INTO tournaments'), [req.body.name, 'Commander', req.body.date, 1, 'Deux boosters', 5, 'Paris', null])
+            expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('INSERT INTO tournaments'), [req.body.name, 'Commander', req.body.date, 1, 'Deux boosters', 5, 'Paris', null, 3])
             expect(res.status).toHaveBeenCalledWith(201)
             expect(res.json).toHaveBeenCalledWith({ title: 'Created', status: 201, detail: 'Tournament creted successfully', tournamentInfo })
         })
@@ -176,12 +176,17 @@ describe('Tournament Controller', () => {
 
     describe('addPlayer', () => {
         it('should register the connected user', async () => {
-            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [req.user] }).mockResolvedValueOnce({ rows: [{ count: '0' }] }).mockResolvedValueOnce({ rows: [] })
+            db.query.mockResolvedValueOnce({ rows: [tournament] })
+                .mockResolvedValueOnce({ rows: [req.user] })
+                .mockResolvedValueOnce({ rows: [{ id_decklist: 9, fk_id_user: 1, fk_id_game: 3 }] })
+                .mockResolvedValueOnce({ rows: [{ count: '0' }] })
+                .mockResolvedValueOnce({ rows: [] })
             await addPlayer(req, res)
             expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('date_tournament = $2'), ['7', '2030-11-15'])
             expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('id_user = $1'), [1])
-            expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('SELECT COUNT'), ['7', 1])
-            expect(db.query).toHaveBeenNthCalledWith(4, expect.stringContaining('INSERT INTO tournaments_has_players'), ['7', 1])
+            expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('id_decklist = $1'), [9])
+            expect(db.query).toHaveBeenNthCalledWith(4, expect.stringContaining('SELECT COUNT'), ['7', 1])
+            expect(db.query).toHaveBeenNthCalledWith(5, expect.stringContaining('INSERT INTO tournaments_has_players'), ['7', 1, 9])
             expect(res.status).toHaveBeenCalledWith(200)
             expect(res.json).toHaveBeenCalledWith({ title: 'Registration completed', status: 200, detail: 'Registration to tournament succesfully' })
         })
@@ -199,12 +204,56 @@ describe('Tournament Controller', () => {
             expect(res.json).toHaveBeenCalledWith({ title: 'Not found', status: 404, detail: 'User not found' })
             expect(db.query).toHaveBeenCalledTimes(2)
         })
+        it('should return 404 if the selected decklist does not exist', async () => {
+            db.query.mockResolvedValueOnce({ rows: [tournament] })
+                .mockResolvedValueOnce({ rows: [req.user] })
+                .mockResolvedValueOnce({ rows: [] })
+
+            await addPlayer(req, res)
+
+            expect(res.status).toHaveBeenCalledWith(404)
+            expect(res.json).toHaveBeenCalledWith({ title: 'Not Found', status: 404, detail: 'Decklist not found' })
+            expect(db.query).toHaveBeenCalledTimes(3)
+        })
+        it('should reject a decklist owned by another user', async () => {
+            db.query.mockResolvedValueOnce({ rows: [tournament] })
+                .mockResolvedValueOnce({ rows: [req.user] })
+                .mockResolvedValueOnce({ rows: [{ id_decklist: 9, fk_id_user: 2, fk_id_game: 3 }] })
+
+            await addPlayer(req, res)
+
+            expect(res.status).toHaveBeenCalledWith(403)
+            expect(res.json).toHaveBeenCalledWith({
+                title: 'Forbidden',
+                status: 403,
+                detail: 'You can only register with your own decklist',
+            })
+            expect(db.query).toHaveBeenCalledTimes(3)
+        })
+        it('should reject a decklist for a different game', async () => {
+            db.query.mockResolvedValueOnce({ rows: [tournament] })
+                .mockResolvedValueOnce({ rows: [req.user] })
+                .mockResolvedValueOnce({ rows: [{ id_decklist: 9, fk_id_user: 1, fk_id_game: 4 }] })
+
+            await addPlayer(req, res)
+
+            expect(res.status).toHaveBeenCalledWith(400)
+            expect(res.json).toHaveBeenCalledWith({
+                title: 'Bad request',
+                status: 400,
+                detail: 'Decklist game does not match tournament game',
+            })
+            expect(db.query).toHaveBeenCalledTimes(3)
+        })
         it('should return 409 if user is already registered', async () => {
-            db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [req.user] }).mockResolvedValueOnce({ rows: [{ count: '1' }] })
+            db.query.mockResolvedValueOnce({ rows: [tournament] })
+                .mockResolvedValueOnce({ rows: [req.user] })
+                .mockResolvedValueOnce({ rows: [{ id_decklist: 9, fk_id_user: 1, fk_id_game: 3 }] })
+                .mockResolvedValueOnce({ rows: [{ count: '1' }] })
             await addPlayer(req, res)
             expect(res.status).toHaveBeenCalledWith(409)
             expect(res.json).toHaveBeenCalledWith({ title: 'Conflict', status: 409, detail: 'User already register' })
-            expect(db.query).toHaveBeenCalledTimes(3)
+            expect(db.query).toHaveBeenCalledTimes(4)
         })
     })
 

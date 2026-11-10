@@ -8,6 +8,14 @@ exports.insertDeck = async (userId, gameId, deck) => {
     return rows[0]
 }
 
+exports.getDeckByID = async (deckId) => {
+    const { rows } = await db.query(
+        'SELECT * FROM decklists WHERE id_decklist = $1',
+        [deckId]
+    )
+    return rows[0]
+}
+
 exports.getDecksByUserAndGame = async (userId, gameId) => {
     const { rows } = await db.query(
         'SELECT d.id_decklist, d.fk_id_game, g.name_game, d.name_decklist, d.format_decklist, d.url_decklist FROM decklists AS d INNER JOIN games AS g ON g.id_game = d.fk_id_game WHERE d.fk_id_user = $1 AND d.fk_id_game = $2 ORDER BY d.name_decklist',
