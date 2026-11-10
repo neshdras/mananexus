@@ -27,12 +27,6 @@ export default function DeckCard({ decks = [], isOwnProfile, onAddDeck }) {
                 <span className="profile-decks__count">{decks.length}</span>
             </div>
 
-            {isOwnProfile && (
-                <button type="button" className="profile-decks__add-card" onClick={onAddDeck}>
-                    <span className="profile-decks__plus" aria-hidden="true">+</span>
-                    <span>Ajouter une decklist</span>
-                </button>
-            )}
 
             {decks.length === 0 ? (
                 !isOwnProfile && (
@@ -57,12 +51,18 @@ export default function DeckCard({ decks = [], isOwnProfile, onAddDeck }) {
                                             href={deck.url_decklist}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                        >
+                                            >
                                             Voir la decklist
                                         </a>
                                     </li>
                                 ))}
                             </ul>
+                            {isOwnProfile && (
+                                <button type="button" className="profile-decks__add-card" onClick={onAddDeck}>
+                                    <span className="profile-decks__plus" aria-hidden="true">+</span>
+                                    <span>Ajouter une decklist</span>
+                                </button>
+                            )}
                         </section>
                     ))}
                 </div>

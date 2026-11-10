@@ -29,6 +29,10 @@ export function Tournament(){
     const { loading, errorMessage, loadFetch } = useController()
     const { user } = useAuth()
     const [tournaments, setTournaments] = useState(null)
+    const [games, setGames] = useState([])
+    const [selectedGameIds, setSelectedGameIds] = useState([])
+    const [gamesLoading, setGamesLoading] = useState(true)
+    const [gamesError, setGamesError] = useState('')
     const [attempt, setAttempt] = useState(0)
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [tournamentToEdit, setTournamentToEdit] = useState(null)
@@ -52,9 +56,41 @@ export function Tournament(){
         return () => { active = false }
     }, [attempt, loadFetch])
 
+    useEffect(() => {
+        let active = true
+        apiService.game.seeAll()
+            .then((data) => {
+                if (active) setGames(data.games)
+            })
+            .catch((error) => {
+                if (active) setGamesError(error.message || 'Impossible de charger les jeux.')
+            })
+            .finally(() => {
+                if (active) setGamesLoading(false)
+            })
+
+        return () => { active = false }
+    }, [])
+
     function retry() {
         setAttempt((value) => value + 1)
     }
+
+    function updateGameFilter(gameId, isChecked) {
+        const normalizedGameId = String(gameId)
+
+        setSelectedGameIds((current) => {
+            if (isChecked)
+                return current.includes(normalizedGameId) ? current : [...current, normalizedGameId]
+
+            return current.filter((id) => id !== normalizedGameId)
+        })
+    }
+
+    const visibleTournaments = (tournaments ?? []).filter((tournament) => (
+        selectedGameIds.length === 0
+        || selectedGameIds.includes(String(tournament.fk_id_game))
+    ))
 
     return(
         <>
@@ -66,6 +102,39 @@ export function Tournament(){
                     <span className="tournament-page__create-icon" aria-hidden="true">+</span> Ajouter un tournoi
                 </button>
             </div>
+            <fieldset className="tournament-page__filters">
+                <legend className="tournament-page__filters-title">Filtrer par jeu</legend>
+                {gamesLoading && <p className="tournament-page__filters-status">Chargement des jeux…</p>}
+                {gamesError && <p className="tournament-page__filters-error" role="alert">{gamesError}</p>}
+                {!gamesLoading && !gamesError && (
+                    <>
+                        <div className="tournament-page__filter-options">
+                            {games.map((game) => {
+                                const gameId = String(game.id_game)
+                                return (
+                                    <label className="tournament-page__filter-option" key={gameId}>
+                                        <input
+                                            className="tournament-page__filter-checkbox"
+                                            type="checkbox"
+                                            checked={selectedGameIds.includes(gameId)}
+                                            onChange={(event) => updateGameFilter(gameId, event.target.checked)}
+                                        />
+                                        <span>{game.name_game}</span>
+                                    </label>
+                                )
+                            })}
+                        </div>
+                        <button
+                            className="tournament-page__filter-reset"
+                            type="button"
+                            onClick={() => setSelectedGameIds([])}
+                            disabled={selectedGameIds.length === 0}
+                        >
+                            Tous les jeux
+                        </button>
+                    </>
+                )}
+            </fieldset>
             {loading && <LogoLoader/>}
             {errorMessage && (
                 <div className="tournament-page__error">
@@ -76,8 +145,11 @@ export function Tournament(){
             {!loading && !errorMessage && tournaments?.length === 0 && (
                 <p className="tournament-page__empty">Aucun tournoi à venir pour le moment.</p>
             )}
+            {!loading && !errorMessage && (tournaments?.length ?? 0) > 0 && visibleTournaments.length === 0 && (
+                <p className="tournament-page__empty">Aucun tournoi pour les jeux sélectionnés.</p>
+            )}
             <div className="tournament-page__list">
-                {tournaments?.map((tournament) => (
+                {visibleTournaments.map((tournament) => (
                     <TournamentCard
                         key={tournament.id_tournament}
                         id={tournament.id_tournament}

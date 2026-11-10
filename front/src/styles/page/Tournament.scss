@@ -44,12 +44,86 @@
         }
     }
 
+    &__filters {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px 16px;
+        margin: 24px 15px 0;
+        padding: 14px 16px;
+        border: 1px solid $opacolor-15;
+        border-radius: 12px;
+    }
+
+    &__filters-title {
+        padding: 0 6px;
+        color: $ligth-gray;
+        font-family: $primary-font;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    &__filters-status,
+    &__filters-error {
+        margin: 0;
+        font-size: 13px;
+    }
+
+    &__filters-error { color: $primary-color; }
+
+    &__filter-options {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    &__filter-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border: 1px solid $opacolor-15;
+        border-radius: 999px;
+        color: $ligth-gray;
+        cursor: pointer;
+        font-size: 13px;
+
+        &:has(.tournament-page__filter-checkbox:checked) {
+            border-color: $primary-color;
+            background: $opacolor-15;
+            color: $white;
+        }
+    }
+
+    &__filter-checkbox {
+        margin: 0;
+        accent-color: $primary-color;
+    }
+
+    &__filter-reset {
+        padding: 7px 10px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        color: $primary-color;
+        cursor: pointer;
+        font: inherit;
+        font-size: 13px;
+
+        &:disabled {
+            cursor: default;
+            opacity: 0.65;
+        }
+    }
+
     &__list {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
         gap: 24px;
         margin-top: 24px;
         padding: 0 15px;
+        justify-items: center;
     }
 }
 
