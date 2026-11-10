@@ -2,7 +2,14 @@ import { Form} from './Form'
 import '../styles/page/Home.scss'
 import { Footer } from "../component/footer/Footer"
 import { NavBar } from '../component/navBar/NavBar'
+import useAuth from '../hook/useAuth'
+import { replace, useNavigate } from 'react-router-dom'
+
 export function Home(){
+    const { user } = useAuth()
+    const navigate = useNavigate()
+    if(user)
+        navigate('./profil', replace(true))
     return(
         <>
         <NavBar/>
