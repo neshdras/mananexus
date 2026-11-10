@@ -1,97 +1,114 @@
 @use '../base/variable' as *;
-#home{
+.home {
     max-width: 1100px;
     margin: auto;
     padding: 64px 24px;
-    >section:first-child{
+
+    &__intro {
         max-width: 760px;
         margin: 0 auto 64px;
         text-align: center;
         font-family: $primary-font;
-        h1{
+
+        .home__title {
             margin: 0 0 24px;
             font-family: $sec-font;
             font-size: 48px;
             font-weight: 400;
             color: $white;
-            span{
+
+            &-accent {
                 color: $primary-color;
                 font-style: italic;
             }
         }
-        p{
+
+        .home__lead,
+        .home__description,
+        .home__highlight {
             margin: 12px 0;
             font-size: 16px;
             line-height: 26px;
             color: $ligth-gray;
-            &:last-child{
-                margin-top: 24px;
-                color: $primary-color;
-            }
         }
+
+        .home__highlight { margin-top: 24px; color: $primary-color; }
     }
-    >section:last-child{
+
+    &__audience {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         align-items: start;
         gap: 24px 48px;
-        >h2{
+
+        &-title {
             margin: 0;
             font-family: $primary-font;
             font-size: 28px;
             font-weight: 400;
             color: $white;
         }
-        >div{
+
+        &-cards {
             display: grid;
             gap: 20px;
             grid-column: 1;
-            article{
+
+            .home__audience-card {
                 padding: 24px;
                 border: 1px solid $opacolor-15;
                 border-radius: 20px;
                 background: $background;
                 font-family: $primary-font;
-                h3{
+
+                .home__card-title {
                     font-family: $sec-font;
                     margin: 0 0 16px;
                     font-size: 20px;
                     font-weight: 600;
                     color: $primary-color;
                 }
-                ul{
+
+                .home__benefits {
                     display: grid;
                     gap: 12px;
                     margin: 0;
                     padding-left: 20px;
-                    li{
+
+                    .home__benefit {
                         font-size: 14px;
                         line-height: 24px;
                         color: $ligth-gray;
-                        &::marker{
+                        &::marker {
                             color: $primary-color;
                         }
                     }
                 }
             }
         }
-        >aside{
+
+        .home__signup {
             grid-column: 2;
             grid-row: 1 / 3;
             min-width: 0;
         }
     }
-    @media screen and (max-width: 768px){
+
+    @media screen and (max-width: 768px) {
         padding: 40px 16px;
-        >section:first-child{
+
+        .home__intro {
             margin-bottom: 40px;
-            h1{
+
+            .home__title {
                 font-size: 36px;
             }
         }
-        >section:last-child{
+
+        .home__audience {
             grid-template-columns: minmax(0, 1fr);
-            >aside{
+
+            .home__signup {
                 grid-column: 1;
                 grid-row: auto;
                 margin-top: 16px;

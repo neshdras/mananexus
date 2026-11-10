@@ -1,38 +1,38 @@
 @use '../../styles/base/variable' as *;
-#loginForm{
+.login-form {
     max-width: 444px;
     margin: auto;
     padding: 24px 14px;
     font-family: $primary-font;
     color: $white;
-    h2{
+    &__title {
         margin: 0 0 14px;
         font-family: $sec-font;
         font-size: 34px;
         font-weight: 400;
-        span{
+        &--accent {
             color: $primary-color;
             font-style: italic;
         }
     }
-    >p{
+    &__description {
         margin: 0 0 40px;
         font-size: 14px;
         line-height: 22px;
         color: $gray;
     }
-    p:empty{
+    &__message:empty {
         display: none;
     }
-    form{
+    &__form {
         display: grid;
         gap: 8px;
     }
-    label{
+    &__label {
         font-size: 12px;
         color: $ligth-gray;
     }
-    input{
+    &__input {
         box-sizing: border-box;
         width: 100%;
         min-width: 0;
@@ -52,7 +52,7 @@
             outline: 1px solid $primary-color;
         }
     }
-    button{
+    &__submit {
         font-family: $primary-font;
         padding: 15px 16px;
         border: none;
@@ -71,10 +71,12 @@
             cursor: wait;
         }
     }
-    .load, .info, .err{
+    &__message {
         margin: 0 0 8px;
         font-size: 12px;
         line-height: 18px;
         color: $primary-color;
     }
+
+    &__message--info { margin-bottom: 40px; color: $gray; }
 }

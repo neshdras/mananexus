@@ -1,11 +1,13 @@
-footer{
+.site-footer {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    p{
+
+    &__copyright {
         font-size: 14px;
     }
-    a{
+
+    &__link {
         color: white;
         text-decoration: none;
     }

@@ -1,38 +1,38 @@
 @use '../../styles/base/variable' as *;
-#registerForm{
+.register-form {
     max-width: 352px;
     margin: auto;
     padding: 24px 14px;
     font-family: Arial, sans-serif;
     color: $white;
-    h2{
+    &__title {
         margin: 0 0 10px;
         font-family: Georgia, serif;
         font-size: 28px;
         font-weight: 400;
-        span{
+        &--accent {
             color: $primary-color;
             font-style: italic;
         }
     }
-    >p{
+    &__description {
         margin: 0 0 32px;
         font-size: 12px;
         line-height: 18px;
         color: $gray;
     }
-    p:empty{
+    &__message:empty {
         display: none;
     }
-    form{
+    &__form {
         display: grid;
         gap: 8px;
     }
-    label{
+    &__label {
         font-size: 10px;
         color: $ligth-gray;
     }
-    input:not([type="checkbox"]){
+    &__input:not([type="checkbox"]) {
         box-sizing: border-box;
         width: 100%;
         min-width: 0;
@@ -52,7 +52,7 @@
             outline: 1px solid $primary-color;
         }
     }
-    label[for="rgpd"]{
+    &__consent {
         display: flex;
         align-items: flex-start;
         gap: 8px;
@@ -61,12 +61,12 @@
         line-height: 14px;
         color: $gray;
         cursor: pointer;
-        input{
+        .register-form__consent-input {
             margin: 0;
             accent-color: $primary-color;
         }
     }
-    button{
+    &__submit {
         padding: 12px 16px;
         border: none;
         border-radius: 10px;
@@ -84,9 +84,11 @@
             cursor: wait;
         }
     }
-    .info, .err{
+    &__message {
         margin: 0 0 8px;
         font-size: 12px;
         color: $primary-color;
     }
+
+    &__message--info { margin-bottom: 32px; color: $gray; }
 }

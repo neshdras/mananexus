@@ -84,8 +84,7 @@
             padding: 0;
             background: transparent;
             opacity: 0.4;
-            svg { width: 250px; }
-            svg > rect { fill: transparent; }
+            .logo-loader__svg { width: 250px; }
         }
         > span {
             z-index: 1;

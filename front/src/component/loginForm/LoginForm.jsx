@@ -32,16 +32,16 @@ function Login() {
     }
     //Erreur lors du chargement, veuillez réessayer plus tard
   return (
-    <div id="loginForm">
-    <form onSubmit={handleSubmit}>
+    <div className="login-form">
+    <form className="login-form__form" onSubmit={handleSubmit}>
           {loading? <LogoLoader/> : ""}
-    <p className='err'>{errorMessage? errorMessage : ""}</p>
-        <p className="info">{message}</p>
-        <label htmlFor="identifiant">Identifiant: </label>
-        <input type="text" name="identifiant" id="identifiant" placeholder="you@example.com" autoComplete="username" onChange={(e) => setInfo(prev => ({...prev, identifiant: e.target.value}))}/>
-        <label htmlFor="pass">Password </label>
-        <input type="password" name="pass" id="pass" placeholder="••••••••" autoComplete="current-password" onChange={(e) => setInfo(prev => ({...prev, password: e.target.value}))}/>
-        <button type="submit" disabled={loading}>{loading ? "Loading..." : "Connexion"}</button>
+    <p className="login-form__message login-form__message--error" role="alert">{errorMessage ? errorMessage : ""}</p>
+        <p className="login-form__message login-form__message--info">{message}</p>
+        <label className="login-form__label" htmlFor="identifiant">Identifiant: </label>
+        <input className="login-form__input" type="text" name="identifiant" id="identifiant" placeholder="you@example.com" autoComplete="username" onChange={(e) => setInfo(prev => ({...prev, identifiant: e.target.value}))}/>
+        <label className="login-form__label" htmlFor="pass">Password </label>
+        <input className="login-form__input" type="password" name="pass" id="pass" placeholder="••••••••" autoComplete="current-password" onChange={(e) => setInfo(prev => ({...prev, password: e.target.value}))}/>
+        <button className="login-form__submit" type="submit" disabled={loading}>{loading ? "Loading..." : "Connexion"}</button>
     </form>
 
     </div>

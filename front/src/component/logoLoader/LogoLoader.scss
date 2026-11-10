@@ -9,7 +9,7 @@
     padding: 24px;
     background: linear-gradient(135deg, #2A2432 0%, #18151F 100%);
 
-    svg {
+    &__svg {
         display: block;
         width: min(60vw, 320px);
         max-width: 100%;
@@ -28,13 +28,13 @@
     &__ring { animation-delay: 0.65s; }
 
     &__center,
-    &__nodes circle {
+    &__node {
         transform-box: fill-box;
         transform-origin: center;
         animation: logo-loader-appear var(--duration) ease-in-out infinite backwards;
     }
 
-    &__branches line {
+    &__branch {
         // Les branches mesurent environ 54 à 62 unités SVG.
         stroke-dasharray: 64;
         stroke-dashoffset: 64;
@@ -44,11 +44,11 @@
 
     // Un léger décalage fait apparaître les six branches et leurs nœuds.
     @for $i from 1 through 6 {
-        &__branches line:nth-child(#{$i}) {
+        &__branch:nth-child(#{$i}) {
             animation-delay: #{0.08 * $i}s;
         }
 
-        &__nodes circle:nth-child(#{$i}) {
+        &__node:nth-child(#{$i}) {
             animation-delay: #{0.16 + 0.08 * $i}s;
         }
     }
@@ -74,8 +74,8 @@
         &__ring,
         &__hexagon,
         &__center,
-        &__branches line,
-        &__nodes circle {
+        &__branch,
+        &__node {
             animation: none;
             stroke-dashoffset: 0;
             transform: none;

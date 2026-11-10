@@ -13,7 +13,7 @@
         gap: 16px;
         margin-bottom: 22px;
 
-        h2 {
+        .profile-decks__title {
             margin: 0;
             font-family: var.$sec-font;
             font-size: 28px;
@@ -94,20 +94,18 @@
         gap: 24px;
     }
 
-    &__game {
-        h3 {
-            margin: 0 0 12px;
-            color: var.$ligth-gray;
-            font-size: 15px;
-        }
+    &__game-title {
+        margin: 0 0 12px;
+        color: var.$ligth-gray;
+        font-size: 15px;
+    }
 
-        ul {
-            display: grid;
-            gap: 10px;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
+    &__list {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
     }
 
     &__item {
@@ -120,27 +118,28 @@
         border-radius: 14px;
         background: rgba(0, 0, 1, 0.18);
 
-        h4 {
-            margin: 0;
-            font-size: 16px;
-        }
+    }
 
-        p {
-            margin: 5px 0 0;
-            color: var.$gray-logo;
-            font-size: 14px;
-        }
+    &__name {
+        margin: 0;
+        font-size: 16px;
+    }
 
-        a {
-            flex: 0 0 auto;
-            color: var.$primary-color;
-            font-weight: 700;
-            text-decoration: none;
+    &__format {
+        margin: 5px 0 0;
+        color: var.$gray-logo;
+        font-size: 14px;
+    }
 
-            &:hover,
-            &:focus-visible {
-                text-decoration: underline;
-            }
+    &__link {
+        flex: 0 0 auto;
+        color: var.$primary-color;
+        font-weight: 700;
+        text-decoration: none;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration: underline;
         }
     }
 }

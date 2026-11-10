@@ -58,22 +58,22 @@ export function Tournament(){
         <NavBar/>
         <main className="tournament-page">
             <div className="tournament-page__heading">
-                <h1>Tournois disponibles</h1>
-                <button type="button" onClick={() => setCreateModalOpen(true)}>
-                    <span aria-hidden="true">+</span> Ajouter un tournoi
+                <h1 className="tournament-page__title">Tournois disponibles</h1>
+                <button className="tournament-page__create" type="button" onClick={() => setCreateModalOpen(true)}>
+                    <span className="tournament-page__create-icon" aria-hidden="true">+</span> Ajouter un tournoi
                 </button>
             </div>
             {loading && <LogoLoader/>}
             {errorMessage && (
-                <div>
-                    <p role="alert">{errorMessage}</p>
-                    <button type="button" onClick={retry}>Réessayer</button>
+                <div className="tournament-page__error">
+                    <p className="tournament-page__error-message" role="alert">{errorMessage}</p>
+                    <button className="tournament-page__retry" type="button" onClick={retry}>Réessayer</button>
                 </div>
             )}
             {!loading && !errorMessage && tournaments?.length === 0 && (
-                <p>Aucun tournoi à venir pour le moment.</p>
+                <p className="tournament-page__empty">Aucun tournoi à venir pour le moment.</p>
             )}
-            <div className="tournament-list">
+            <div className="tournament-page__list">
                 {tournaments?.map((tournament) => (
                     <TournamentCard
                         key={tournament.id_tournament}

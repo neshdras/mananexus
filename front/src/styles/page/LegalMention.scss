@@ -1,17 +1,19 @@
 @use '../base/variable' as *;
 
-#legal-notice{
+.legal-notice {
     max-width: 1440px;
     width: 100%;
     margin: auto;
     font-family: $primary-font;
-    section{
+
+    &__content {
         display: flex;
         flex-direction: column;
         padding: 0 15px 130px;
-        ul{
-            display: grid;
-            gap: 10px;
-        }
+    }
+
+    &__list {
+        display: grid;
+        gap: 10px;
     }
 }

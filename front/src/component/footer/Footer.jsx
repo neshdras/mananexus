@@ -4,9 +4,9 @@ import './Footer.scss'
 export function Footer(){
 
     return(
-        <footer>
-            <p>FORET Antonin &#169; {new Date().getFullYear()}</p>
-            <Link to={"/legal-mention"}>Mentions Légales</Link>
+        <footer className="site-footer">
+            <p className="site-footer__copyright">FORET Antonin &#169; {new Date().getFullYear()}</p>
+            <Link className="site-footer__link" to={"/legal-mention"}>Mentions Légales</Link>
         </footer>
     )
 }

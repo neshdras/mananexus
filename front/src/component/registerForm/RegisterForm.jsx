@@ -52,29 +52,29 @@ function FormRegister() {
   }
   
   return(
-    <section id="registerForm">
+    <section className="register-form">
 
     {loading? <LogoLoader/> : ""}
-    {errorMessage && <p className='err' role='alert'>{errorMessage}</p>}
-    <form onSubmit={handleSubmit}>
-      <p className="info">{info}</p>
-      <label htmlFor="firstname">Prénom: </label>
-      <input type="text" name="firstname" id="firstname" placeholder="Votre prénom" autoComplete='given-name' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
-      <label htmlFor="lastname">Nom de famille: </label>
-      <input type="text" name="lastname" id="lastname" placeholder="Votre nom"  autoComplete='family-name' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, lastname: e.target.value}))}/>
-      <label htmlFor="email">Email: </label>
-      <input type="email" name="email" id="email" placeholder="prenom.nom@exemple.fr" autoComplete='email' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, email: e.target.value}))}/>
-      <label htmlFor="pseudo">Pseudo: (optionnel)</label>
-      <input type="text" name="pseudo" id="pseudo" placeholder="Votre pseudo" autoComplete='username' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
-      <label htmlFor="pass">Password</label>
-      <input type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='new-password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
-      <label htmlFor="pass-confirm">Confirmation Password</label>
-      <input type="password" name="pass-confirm" id="pass-confirm" disabled={loading} onChange={(e) => {
+    {errorMessage && <p className="register-form__message register-form__message--error" role='alert'>{errorMessage}</p>}
+    <form className="register-form__form" onSubmit={handleSubmit}>
+      <p className="register-form__message register-form__message--info">{info}</p>
+      <label className="register-form__label" htmlFor="firstname">Prénom: </label>
+      <input className="register-form__input" type="text" name="firstname" id="firstname" placeholder="Votre prénom" autoComplete='given-name' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, firstname: e.target.value}))}/>
+      <label className="register-form__label" htmlFor="lastname">Nom de famille: </label>
+      <input className="register-form__input" type="text" name="lastname" id="lastname" placeholder="Votre nom"  autoComplete='family-name' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, lastname: e.target.value}))}/>
+      <label className="register-form__label" htmlFor="email">Email: </label>
+      <input className="register-form__input" type="email" name="email" id="email" placeholder="prenom.nom@exemple.fr" autoComplete='email' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, email: e.target.value}))}/>
+      <label className="register-form__label" htmlFor="pseudo">Pseudo: (optionnel)</label>
+      <input className="register-form__input" type="text" name="pseudo" id="pseudo" placeholder="Votre pseudo" autoComplete='username' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
+      <label className="register-form__label" htmlFor="pass">Password</label>
+      <input className="register-form__input" type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='new-password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+      <label className="register-form__label" htmlFor="pass-confirm">Confirmation Password</label>
+      <input className="register-form__input" type="password" name="pass-confirm" id="pass-confirm" disabled={loading} onChange={(e) => {
         setPasswordConfirm(e.target.value)
         setInfo(e.target.value !== dataForm.password ? 'Les mots de passe ne sont pas identiques.' : null)
       }}/>
-      <label htmlFor="rgpd"><input type="checkbox" name="rgpd" id="rgpd" onChange={()=>setIsAgree(!isAgree)} /> En cochant cette case, je suis d'accord de partager les informations donnée ci-dessus avec Nexus Shuffle</label>
-      <button type="submit" disabled={loading}>{loading ? "Loading..." : "Inscription"}</button>
+      <label className="register-form__consent" htmlFor="rgpd"><input className="register-form__consent-input" type="checkbox" name="rgpd" id="rgpd" onChange={()=>setIsAgree(!isAgree)} /> En cochant cette case, je suis d'accord de partager les informations donnée ci-dessus avec Nexus Shuffle</label>
+      <button className="register-form__submit" type="submit" disabled={loading}>{loading ? "Loading..." : "Inscription"}</button>
     </form>
     </section>
   )

@@ -25,11 +25,12 @@
         font-weight: 700;
         text-transform: uppercase;
 
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    }
+
+    &__avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     &__eyebrow {
@@ -41,7 +42,7 @@
         text-transform: uppercase;
     }
 
-    h1 {
+    &__title {
         margin: 0;
         font-family: var.$sec-font;
         font-size: clamp(26px, 4vw, 36px);

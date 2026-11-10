@@ -15,14 +15,14 @@ export default function InfoCard({ user, isOwnProfile, onEdit }) {
         <section className="profile-info" aria-labelledby="profile-info-title">
             <div className="profile-info__avatar" aria-hidden="true">
                 {user.picture_user
-                    ? <img src={user.picture_user} alt="" />
+                ? <img className="profile-info__avatar-image" src={user.picture_user} alt="" />
                     : <span>{initials || user.pseudo_user?.[0] || '?'}</span>}
             </div>
             <div className="profile-info__details">
                 <p className="profile-info__eyebrow">
                     {isOwnProfile ? 'Mon profil' : 'Profil joueur'}
                 </p>
-                <h1 id="profile-info-title">
+                <h1 id="profile-info-title" className="profile-info__title">
                     {user.pseudo_user || fullName || 'Joueur'}
                 </h1>
                 {fullName && <p className="profile-info__name">{fullName}</p>}

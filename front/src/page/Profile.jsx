@@ -72,8 +72,8 @@ export function Profile() {
                 {loading && <LogoLoader />}
                 {errorMessage && (
                     <div className="profile-page__error">
-                        <p role="alert">{errorMessage}</p>
-                        <button type="button" onClick={() => setAttempt((value) => value + 1)}>
+                        <p className="profile-page__error-message" role="alert">{errorMessage}</p>
+                        <button className="profile-page__retry" type="button" onClick={() => setAttempt((value) => value + 1)}>
                             Réessayer
                         </button>
                     </div>

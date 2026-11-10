@@ -29,7 +29,7 @@ export function NavBar(){
     if (user) 
         return(
         <header className="nav-bar">
-            <img src="/logo.svg" alt="logo Nexus Shuffle" />
+            <img className="nav-bar__logo" src="/logo.svg" alt="logo Nexus Shuffle" />
            
             <button
                 className="nav-bar__toggle"
@@ -45,23 +45,23 @@ export function NavBar(){
             </button>
             <nav className={`nav-bar__nav${isMenuOpen ? ' nav-bar__nav--open' : ''}`} id="nav-bar-menu">
                 <ul className="nav-bar__links">
-                    <li><Link to='/tournament' onClick={() => setIsMenuOpen(false)}>Tournoi</Link></li>
-                    <li><Link to='/profile' onClick={() => setIsMenuOpen(false)}>Profil</Link></li>
+                    <li><Link className="nav-bar__link" to='/tournament' onClick={() => setIsMenuOpen(false)}>Tournoi</Link></li>
+                    <li><Link className="nav-bar__link" to='/profile' onClick={() => setIsMenuOpen(false)}>Profil</Link></li>
                     <li>
-                        <button className="logout-button" type="button" onClick={handleLogout} disabled={isLoggingOut}>
+                        <button className="nav-bar__logout" type="button" onClick={handleLogout} disabled={isLoggingOut}>
                             {isLoggingOut ? 'Déconnexion…' : 'Déconnexion'}
                         </button>
                     </li>
                     
                 </ul>
             </nav>
-            {logoutError && <p className="logout-error" role="alert">{logoutError}</p>}
+            {logoutError && <p className="nav-bar__logout-error" role="alert">{logoutError}</p>}
         
         </header>
     )
     return(
-        <header>
-            <Link className="nav-bar__brand" to="/"><img src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
+        <header className="nav-bar">
+            <Link className="nav-bar__brand" to="/"><img className="nav-bar__logo" src="/logo.svg" alt="logo Nexus Shuffle" /></Link>
         </header>
     )
 }
