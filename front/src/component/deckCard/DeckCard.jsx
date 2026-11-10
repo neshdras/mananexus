@@ -1,6 +1,43 @@
+import { useEffect, useRef } from 'react'
 import './DeckCard.scss'
 
-export default function DeckCard({ decks = [], isOwnProfile, onAddDeck }) {
+export default function DeckCard({
+    decks = [],
+    isOwnProfile,
+    onAddDeck,
+    onVisible,
+    onRetry,
+    loading = false,
+    errorMessage,
+}) {
+    const sectionRef = useRef(null)
+    const requestedRef = useRef(false)
+
+    useEffect(() => {
+        const section = sectionRef.current
+        if (!section || !onVisible) return
+
+        const loadWhenVisible = () => {
+            if (requestedRef.current) return
+            requestedRef.current = true
+            onVisible()
+        }
+
+        if (!('IntersectionObserver' in window)) {
+            loadWhenVisible()
+            return
+        }
+
+        const observer = new IntersectionObserver(([entry]) => {
+            if (!entry.isIntersecting) return
+            loadWhenVisible()
+            observer.disconnect()
+        }, { rootMargin: '100px' })
+
+        observer.observe(section)
+        return () => observer.disconnect()
+    }, [onVisible])
+
     const decksByGame = decks.reduce((groups, deck) => {
         const gameId = deck.fk_id_game
         groups[gameId] ??= []
@@ -16,7 +53,7 @@ export default function DeckCard({ decks = [], isOwnProfile, onAddDeck }) {
     )
 
     return (
-        <section className="profile-decks" aria-labelledby="profile-decks-title">
+        <section ref={sectionRef} className="profile-decks" aria-labelledby="profile-decks-title">
             <div className="profile-decks__heading">
                 <div>
                     <p className="profile-decks__eyebrow">Decklists</p>
@@ -28,7 +65,14 @@ export default function DeckCard({ decks = [], isOwnProfile, onAddDeck }) {
             </div>
 
 
-            {decks.length === 0 ? (
+            {loading ? (
+                <p className="profile-decks__empty" role="status">Chargement des decklists…</p>
+            ) : errorMessage ? (
+                <div className="profile-decks__empty" role="alert">
+                    <p>{errorMessage}</p>
+                    <button type="button" onClick={onRetry}>Réessayer</button>
+                </div>
+            ) : decks.length === 0 ? (
                 !isOwnProfile && (
                     <p className="profile-decks__empty">
                         Ce joueur n’a pas encore ajouté de decklist.

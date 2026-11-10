@@ -16,6 +16,11 @@ export function Profile() {
     const { id } = useParams()
     const { user: connectedUser } = useAuth()
     const { loading, errorMessage, loadFetch } = useController()
+    const {
+        loading: decksLoading,
+        errorMessage: decksError,
+        loadFetch: loadDecks,
+    } = useController()
     const [loadedProfile, setLoadedProfile] = useState(null)
     const [attempt, setAttempt] = useState(0)
     const [isDeckModalOpen, setDeckModalOpen] = useState(false)
@@ -34,17 +39,14 @@ export function Profile() {
         let active = true
 
         const getProfileData = async (userId, signal) => {
-            const [profileData, deckData] = await Promise.all([
-                isOwnProfile
-                    ? Promise.resolve({ user: connectedUser })
-                    : apiService.user.profile(userId, signal),
-                apiService.deck.profile(userId, signal),
-            ])
+            const profileData = isOwnProfile
+                ? { user: connectedUser }
+                : await apiService.user.profile(userId, signal)
 
             if (!profileData.user)
                 throw new Error('Profil introuvable')
 
-            return { user: profileData.user, decks: deckData.decks }
+            return { user: profileData.user, decks: [], decksLoaded: false }
         }
 
         loadFetch(getProfileData, profileId)
@@ -64,6 +66,18 @@ export function Profile() {
         ? connectedUser
         : hasLoadedProfile ? loadedProfile.user : null
     const decks = hasLoadedProfile ? loadedProfile.decks : []
+
+    const handleLoadDecks = () => {
+        if (!profileId || !hasLoadedProfile || loadedProfile.decksLoaded || decksLoading)
+            return
+
+        loadDecks(apiService.deck.profile, profileId).then((data) => {
+            if (!data) return
+            setLoadedProfile((current) => current && current.id === String(profileId)
+                ? { ...current, decks: data.decks, decksLoaded: true }
+                : current)
+        })
+    }
 
     return (
         <div className="profile-page">
@@ -90,6 +104,10 @@ export function Profile() {
                             decks={decks}
                             isOwnProfile={isOwnProfile}
                             onAddDeck={() => setDeckModalOpen(true)}
+                            onVisible={handleLoadDecks}
+                            onRetry={handleLoadDecks}
+                            loading={decksLoading}
+                            errorMessage={decksError}
                         />
                     </>
                 )}
