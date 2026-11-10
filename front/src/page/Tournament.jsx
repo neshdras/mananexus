@@ -6,6 +6,7 @@ import '../styles/page/Tournament.scss'
 import {NavBar} from '../component/navBar/NavBar'
 import {Footer} from '../component/footer/Footer'
 import ModalTournament from '../component/modal/ModalTournament'
+import ReserveTournamentModal from '../component/modal/ReserveTournamentModal'
 import useAuth from '../hook/useAuth'
 import { LogoLoader } from "../component/logoLoader/LogoLoader"
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
@@ -31,6 +32,8 @@ export function Tournament(){
     const [attempt, setAttempt] = useState(0)
     const [isCreateModalOpen, setCreateModalOpen] = useState(false)
     const [tournamentToEdit, setTournamentToEdit] = useState(null)
+    const [tournamentToReserve, setTournamentToReserve] = useState(null)
+    const [reservedTournamentIds, setReservedTournamentIds] = useState([])
 
     useEffect(()=>{
         document.title = 'Nexus Shuffle | Profil'
@@ -78,6 +81,7 @@ export function Tournament(){
                     <TournamentCard
                         key={tournament.id_tournament}
                         id={tournament.id_tournament}
+                        gameId={tournament.fk_id_game}
                         title={tournament.name_tournament}
                         format={tournament.format_tournament}
                         date={formatDate(tournament.date_tournament)}
@@ -87,6 +91,8 @@ export function Tournament(){
                             : moneyFormatter.format(tournament.ctc_tournament)}
                         location={tournament.location_tournament}
                         canEdit={Boolean(user && String(user.id_user) === String(tournament.fk_id_user))}
+                        isReserved={reservedTournamentIds.includes(String(tournament.id_tournament))}
+                        onReserve={() => setTournamentToReserve(tournament)}
                         onEdit={() => setTournamentToEdit(tournament)}
                     />
                 ))}
@@ -103,6 +109,18 @@ export function Tournament(){
                 tournament={tournamentToEdit}
                 onClose={() => setTournamentToEdit(null)}
                 onTournamentUpdated={() => setAttempt((value) => value + 1)}
+            />
+        )}
+        {tournamentToReserve && user && (
+            <ReserveTournamentModal
+                tournament={tournamentToReserve}
+                userId={user.id_user}
+                onClose={() => setTournamentToReserve(null)}
+                onReserved={() => setReservedTournamentIds((current) => (
+                    current.includes(String(tournamentToReserve.id_tournament))
+                        ? current
+                        : [...current, String(tournamentToReserve.id_tournament)]
+                ))}
             />
         )}
         <Footer/>

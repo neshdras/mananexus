@@ -97,6 +97,11 @@
             outline: 1px solid $primary-color;
             outline-offset: 3px;
         }
+
+        &:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
     }
 
     &__edit {

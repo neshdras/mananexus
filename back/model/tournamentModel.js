@@ -17,7 +17,7 @@ exports.getTournamentById = async (id) => {
 }
 exports.getTournamentByIdAndDate = async (id, date) => {
     const {rows} = await db.query(
-        'SELECT * FROM tournaments WHERE id_tournament = $1 AND date_tournament = $2',
+        'SELECT * FROM tournaments WHERE id_tournament = $1 AND date_tournament >= $2',
         [id, date]
     )
     return rows[0] || null

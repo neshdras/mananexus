@@ -182,7 +182,7 @@ describe('Tournament Controller', () => {
                 .mockResolvedValueOnce({ rows: [{ count: '0' }] })
                 .mockResolvedValueOnce({ rows: [] })
             await addPlayer(req, res)
-            expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('date_tournament = $2'), ['7', '2030-11-15'])
+            expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('date_tournament >= $2::date'), ['7', '2030-11-15'])
             expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('id_user = $1'), [1])
             expect(db.query).toHaveBeenNthCalledWith(3, expect.stringContaining('id_decklist = $1'), [9])
             expect(db.query).toHaveBeenNthCalledWith(4, expect.stringContaining('SELECT COUNT'), ['7', 1])
@@ -261,7 +261,7 @@ describe('Tournament Controller', () => {
         it('should unregister an existing player', async () => {
             db.query.mockResolvedValueOnce({ rows: [tournament] }).mockResolvedValueOnce({ rows: [req.user] }).mockResolvedValueOnce({ rows: [{ count: '1' }] }).mockResolvedValueOnce({ rows: [] })
             await delPlayer(req, res)
-            expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('date_tournament = $2'), ['7', '2030-11-15'])
+            expect(db.query).toHaveBeenNthCalledWith(1, expect.stringContaining('date_tournament >= $2::date'), ['7', '2030-11-15'])
             expect(db.query).toHaveBeenNthCalledWith(2, expect.stringContaining('id_user = $1'), [1])
             expect(db.query).toHaveBeenNthCalledWith(4, expect.stringContaining('DELETE FROM tournaments_has_players'), ['7', 1])
             expect(res.status).toHaveBeenCalledWith(200)

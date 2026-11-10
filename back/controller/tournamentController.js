@@ -130,8 +130,7 @@ exports.addPlayer = async (req, res) => {
     const idTournament = req.params.id
     const idUser = req.user.id_user
     const idDeck = req.body.idDeck
-    const date = new Date().toISOString()
-    const today = date.split("T")[0]
+    const today = new Date().toISOString().split('T')[0]
 
     const queryTime = await getTournamentByIdAndDate(idTournament, today)
     if(!queryTime)
@@ -191,8 +190,7 @@ exports.delPlayer = async (req, res) => {
     const idTournoi = req.params.id
     const idUser = req.user.id_user
 
-    const date = new Date().toISOString()
-    const today = date.split("T")[0]
+    const today = new Date().toISOString().split('T')[0]
 
     const queryTime = await getTournamentByIdAndDate(idTournoi, today)
     if(!queryTime)

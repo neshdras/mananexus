@@ -1,6 +1,6 @@
 import './tournamentCard.scss'
 
-export function TournamentCard({id, title, format, date, price, paf, location, canEdit = false, onEdit}){
+export function TournamentCard({id, title, format, date, price, paf, location, canEdit = false, isReserved = false, onEdit, onReserve}){
     return(
         <article className="card-tournament" data-id={id}>
             <div className="card-tournament__heading">
@@ -42,7 +42,15 @@ export function TournamentCard({id, title, format, date, price, paf, location, c
             </div>
             <div className="card-tournament__footer">
                 <p className="card-tournament__format">{format}</p>
-                <button className="card-tournament__reserve" type="button">Réserver <span aria-hidden="true">→</span></button>
+                <button
+                    className="card-tournament__reserve"
+                    type="button"
+                    onClick={onReserve}
+                    disabled={isReserved}
+                >
+                    {isReserved ? 'Réservé' : 'Réserver'}
+                    {!isReserved && <span aria-hidden="true">→</span>}
+                </button>
             </div>
         </article>
     )

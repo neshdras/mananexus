@@ -256,17 +256,22 @@ export const apiService = {
             return data
         },
         async addPlayer(info, signal){
-            const req = await apiRequest(`/tournament/join/${info}`,{
+            const { tournamentId, idDeck } = info
+            const req = await apiRequest(`/tournament/join/${tournamentId}`,{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                body: JSON.stringify({ idDeck }),
                 signal
             })
-            if(!req.ok)
-                throw new Error(`Error HTTP : ${req.status}`);
-                
-            return req.json()
+            const data = await req.json().catch(() => ({}))
+            if (!req.ok) {
+                const detail = data.invalidParams?.[0]?.message ?? data.detail ?? data.message
+                throw new Error(detail || `Erreur HTTP : ${req.status}`)
+            }
+
+            return data
         },
         async delPlayer(info, signal){
             const req = await apiRequest(`/tournament/join/${info}`,{
