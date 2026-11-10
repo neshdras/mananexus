@@ -94,7 +94,7 @@ export default function DeckCard({
                                             className="profile-decks__link"
                                             href={deck.url_decklist}
                                             target="_blank"
-                                            rel="noopener noreferrer"
+                                            rel="noopener noreferrer nofollow"
                                             >
                                             Voir la decklist
                                         </a>
