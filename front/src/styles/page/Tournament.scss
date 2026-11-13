@@ -14,7 +14,7 @@
         padding: 0 15px;
     }
 
-    &__title { margin: 0; }
+    &__title { margin: 0; font-family: $sec-font; }
 
     &__create {
         display: inline-flex;
@@ -76,6 +76,7 @@
         align-items: center;
         flex-wrap: wrap;
         gap: 8px;
+
     }
 
     &__filter-option {
@@ -88,6 +89,7 @@
         color: $ligth-gray;
         cursor: pointer;
         font-size: 13px;
+        font-family: $primary-font;
 
         &:has(.tournament-page__filter-checkbox:checked) {
             border-color: $primary-color;

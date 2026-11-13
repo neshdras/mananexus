@@ -63,26 +63,44 @@ exports.register = async (req, res) => {
 }
 
 exports.login = async (req, res) =>{
+    const loginStartedAt = process.hrtime.bigint()
+    const elapsedMs = (startedAt) => Number(process.hrtime.bigint() - startedAt) / 1e6
     const {identifiant, password} = req.body
 
     const isEmail = validator.isEmail(identifiant)
 
     const user = isEmail ? await findUserByEmail(identifiant) : await findUserByPseudo(identifiant)
+    const userLookupMs = elapsedMs(loginStartedAt)
     
-    if(!user)
+    if(!user) {
+        console.info('[auth.login] %j', {
+            userLookupMs: Math.round(userLookupMs),
+            totalMs: Math.round(elapsedMs(loginStartedAt)),
+            result: 'user-not-found',
+        })
         return res.status(401).json({
             title: 'Unauthorized',
             status: 401,
             detail: "Identifiants incorrects"
         })
+    }
 
+    const passwordCheckStartedAt = process.hrtime.bigint()
     const isMatching = await bcrypt.compare(password, user.password_user)
-    if(!isMatching)
+    const passwordCheckMs = elapsedMs(passwordCheckStartedAt)
+    if(!isMatching) {
+        console.info('[auth.login] %j', {
+            userLookupMs: Math.round(userLookupMs),
+            passwordCheckMs: Math.round(passwordCheckMs),
+            totalMs: Math.round(elapsedMs(loginStartedAt)),
+            result: 'password-mismatch',
+        })
         return res.status(401).json({
             title: 'Unauthorized',
             status: 401,
             detail: "Identifiants incorrects"
         })
+    }
 
     const tokenRefresh = generateToken(user.id_user, '7d')
     const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
@@ -111,6 +129,12 @@ exports.login = async (req, res) =>{
             email_user: user.email_user,
             picture_user: user.picture_user
         }
+    })
+    console.info('[auth.login] %j', {
+        userLookupMs: Math.round(userLookupMs),
+        passwordCheckMs: Math.round(passwordCheckMs),
+        totalMs: Math.round(elapsedMs(loginStartedAt)),
+        result: 'success',
     })
 }
 
