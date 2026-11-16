@@ -35,7 +35,7 @@ exports.register = async (req, res) => {
             detail: "Pseudo already use"
         })
     
-    const hash = await bcrypt.hash(password, 15)
+    const hash = await bcrypt.hash(password, 12)
 
     const insertValue = [firstname, lastname, pseudo, email, hash, picture]
 
@@ -101,7 +101,12 @@ exports.login = async (req, res) =>{
             detail: "Identifiants incorrects"
         })
     }
-
+    const cost = bcrypt.getRounds(user.password_user)
+    console.info(cost)
+    if (cost != 12) {
+        const newHash = await bcrypt.hash(password, 12)
+        await udpatePassword(newHash, user.id_user)
+    }
     const tokenRefresh = generateToken(user.id_user, '7d')
     const tokenAccess = generateToken(user.id_user, 900) // 900seconde = 15min
 
