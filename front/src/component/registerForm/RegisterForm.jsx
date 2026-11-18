@@ -5,7 +5,7 @@ import './registerForm.scss'
 import {useNavigate} from 'react-router-dom'
 import useStoreUser from "../../hook/storeUser"
 import { LogoLoader } from '../logoLoader/LogoLoader'
-
+import { Eye, EyeOff } from '../eye/Eye'
 function FormRegister() {
   const query = apiService.auth.register
   const { loading, errorMessage, loadFetch} = useController()
@@ -13,6 +13,8 @@ function FormRegister() {
   const [info, setInfo] = useState(null)
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [isAgree, setIsAgree] = useState(false)
+  const [passType, setPassType] = useState(false)
+  const [confPassType, setConfPassType] = useState(false)
   const regexPassword = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,}$/
   const regexMail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const setUser = useStoreUser((state) => state.setUser)
@@ -67,12 +69,18 @@ function FormRegister() {
       <label className="register-form__label" htmlFor="pseudo">Pseudo: (optionnel)</label>
       <input className="register-form__input" type="text" name="pseudo" id="pseudo" placeholder="Votre pseudo" autoComplete='username' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, pseudo: e.target.value}))}/>
       <label className="register-form__label" htmlFor="pass">Password</label>
-      <input className="register-form__input" type="password" name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='new-password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+      <div className='register-form__password-field'> 
+        <input className="register-form__input" type={passType ? "text" : "password"} name="pass" id="pass" placeholder="Au moins 6 caractères, une majuscule, un chiffre et un symbole" autoComplete='new-password' disabled={loading} onChange={(e) => setDataForm(prev => ({...prev, password: e.target.value}))}/>
+        <button className='register-form__password-toggle' type='button' name='seePassword' id='seePassword' onClick={()=>setPassType(!passType)}>{passType ? <Eye/> :<EyeOff/> }</button>
+      </div>
       <label className="register-form__label" htmlFor="pass-confirm">Confirmation Password</label>
-      <input className="register-form__input" type="password" name="pass-confirm" id="pass-confirm" disabled={loading} onChange={(e) => {
-        setPasswordConfirm(e.target.value)
-        setInfo(e.target.value !== dataForm.password ? 'Les mots de passe ne sont pas identiques.' : null)
-      }}/>
+      <div className='register-form__password-field'>
+        <input className="register-form__input" type={confPassType ? "text":"password"} name="pass-confirm" id="pass-confirm" disabled={loading} onChange={(e) => {
+          setPasswordConfirm(e.target.value)
+          setInfo(e.target.value !== dataForm.password ? 'Les mots de passe ne sont pas identiques.' : null)
+        }}/>
+        <button className='register-form__password-toggle' type='button' name='seeConfPassword' id='seeConfPassword' onClick={()=>setConfPassType(!confPassType)}>{confPassType ? <Eye/> : <EyeOff/>}</button>  
+      </div>
       <label className="register-form__consent" htmlFor="rgpd"><input className="register-form__consent-input" type="checkbox" name="rgpd" id="rgpd" onChange={()=>setIsAgree(!isAgree)} /> En cochant cette case, je suis d'accord de partager les informations donnée ci-dessus avec Nexus Shuffle</label>
       <button className="register-form__submit" type="submit" disabled={loading}>{loading ? "Loading..." : "Inscription"}</button>
     </form>

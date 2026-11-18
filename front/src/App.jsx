@@ -29,6 +29,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home/>}/>
         <Route path="/legal-mention" element={<LegalNotice/>}/>
+        
         <Route element={<ProtectedRoute />}>
           <Route path="/ranking" element={<Ranking/>}/>
           <Route path="/profile" element={<Profile/>}/>

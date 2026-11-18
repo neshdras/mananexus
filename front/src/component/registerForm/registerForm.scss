@@ -59,7 +59,7 @@
         margin: 4px 0 8px;
         font-size: 9px;
         line-height: 14px;
-        color: $gray;
+        color: $ligth-gray;
         cursor: pointer;
         .register-form__consent-input {
             margin: 0;
@@ -91,4 +91,30 @@
     }
 
     &__message--info { margin-bottom: 32px; color: $gray; }
+
+    .register-form__password-field {
+  position: relative;
+
+  .register-form__input {
+    padding-right: 44px;
+  }
+}
+
+.register-form__password-toggle {
+  position: absolute;
+  top: 19px; 
+  right: 10px;
+  transform: translateY(-50%);
+  border: 0;
+  padding: 4px;
+  background: transparent;
+  color: $gray;
+  cursor: pointer;
+
+  svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+}
 }
